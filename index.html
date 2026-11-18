@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -308,7 +308,7 @@ var SUGGEST={
 var TOUR=[
  ["pal","Welcome, I am Puff","This is Life Planner, a gentle place to notice how life feels, tend small habits and keep track of what matters. Let me show you around. It only takes a minute."],
  ["sage|leaf","Begin with your balance wheel","On the Today page, rate six areas of life from 1 to 10: Mindfulness, Self Care, Productivity, Mental Health, Nutrition and Financial Wellness. The wheel shows where a little more care could help."],
- ["petal|sprout","Plant small habits","Tap an area card or Add habit, then open Choose a habit for ready made ideas. Tick each day you do it. A missed day is only a day."],
+ ["petal|sprout","Plant small habits","Tap an area card or Add habit, then open Choose a habit for ready-made ideas. Tick each day you do it. A missed day is only a day."],
  ["sun|check","Tasks for the day","Add what you need to do, with a due date if you like. The Today page shows only what is waiting for you now."],
  ["mist|book","Journal and money","Write a few honest lines and choose the weather inside. Note what comes in and goes out. Money totals only appear on the Money page."],
  ["sky|hill","Finding your way","Use the bar at the bottom to move between Today, Tasks, Habits, Journal and Money. The button at the bottom right of each section adds something new. Settings live behind the gear at the top."],
@@ -322,16 +322,16 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){retur
 function ymd(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);}
 function shift(n){var d=new Date();d.setDate(d.getDate()+n);return ymd(d);}
 function parse(k){var p=k.split("-");return new Date(+p[0],+p[1]-1,+p[2]);}
-function nice(k){return parse(k).toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"});}
+function nice(k){return parse(k).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
-function money(n){return esc(S.currency)+" "+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function money(n){return esc(S.currency)+" "+Number(n).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2});}
 function $(id){return document.getElementById(id);}
 
 function examples(){
   var t=shift(0),log=function(a){var o={};a.forEach(function(n){o[shift(-n)]=1;});return o;};
   return {v:1,updatedAt:0,name:"",currency:"R",examples:true,
    wheel:{date:shift(-3),scores:{mindfulness:5,selfcare:4,productivity:7,mental:6,nutrition:6,financial:5}},
-   tasks:[{id:"e1",title:"Water the plants on the stoep",due:t,done:false},{id:"e2",title:"Reply to Mum's message",due:"",done:false},{id:"e3",title:"Book the dentist check up",due:shift(3),done:false},{id:"e4",title:"Ten quiet minutes before work",due:t,done:true}],
+   tasks:[{id:"e1",title:"Water the plants on the stoep",due:t,done:false},{id:"e2",title:"Reply to Mum's message",due:"",done:false},{id:"e3",title:"Book the dentist check-up",due:shift(3),done:false},{id:"e4",title:"Ten quiet minutes before work",due:t,done:true}],
    habits:[{id:"h1",name:"Drink water",icon:"drop",part:"any",area:"4",log:log([0,1,2,3,5])},{id:"h2",name:"Walk outside",icon:"tree",part:"morning",area:"1",log:log([1,2,3])},{id:"h3",name:"Read ten pages",icon:"book",part:"evening",area:"2",log:log([1,3,4])},{id:"h4",name:"Lights out by ten",icon:"moon",part:"evening",area:"1",log:log([1,2])}],
    journal:[{id:"j1",date:shift(-1),mood:"fair",text:"Slow start, but the walk helped. Noticed the jacarandas are nearly done. Grateful for a quiet evening."}],
    money:[{id:"m1",date:shift(-6),type:"in",amount:18500,cat:"Income",note:"Salary"},{id:"m2",date:shift(-4),type:"out",amount:6200,cat:"Home",note:"Rent"},{id:"m3",date:shift(-2),type:"out",amount:1340.500,cat:"Food",note:"Groceries"},{id:"m4",date:shift(-1),type:"out",amount:420,cat:"Transport",note:"Petrol"},{id:"m5",date:t,type:"out",amount:85,cat:"Leisure",note:"Coffee with a friend"}]};
@@ -485,7 +485,7 @@ function vToday(){
   var mk=td.slice(0,7),mt=totals(S.money.filter(function(m){return m.date.slice(0,7)===mk;})),all=totals(S.money);
   var wrote=S.journal.some(function(j){return j.date===td;});
   var h='<div class="top"><div class="brand">'+ic("sprout",22)+'Life Planner</div><button type="button" class="iconbtn" aria-label="Settings" data-act="open" data-kind="settings">'+ic("gear")+'</button></div>'+banner()+
-  '<div class="hi"><div class="hello"><p class="muted small">'+esc(new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"}))+'</p><h1>'+g+(S.name?", "+esc(S.name):"")+'</h1><p class="line">'+LINES[doy%LINES.length]+'</p></div><button type="button" class="pal" data-act="pal" aria-label="Puff, your little cloud friend. Tap to say hello">'+pal(ht&&hd===ht?"joy":(hr>=21||hr<5)?"sleep":"calm")+'</button></div><p class="bubble" id="pal-say" aria-live="polite">'+esc(palMsg||"Hello, I am Puff. Tap me whenever you like.")+'</p>';
+  '<div class="hi"><div class="hello"><p class="muted small">'+esc(new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}))+'</p><h1>'+g+(S.name?", "+esc(S.name):"")+'</h1><p class="line">'+LINES[doy%LINES.length]+'</p></div><button type="button" class="pal" data-act="pal" aria-label="Puff, your little cloud friend. Tap to say hello">'+pal(ht&&hd===ht?"joy":(hr>=21||hr<5)?"sleep":"calm")+'</button></div><p class="bubble" id="pal-say" aria-live="polite">'+esc(palMsg||"Hello, I am Puff. Tap me whenever you like.")+'</p>';
   if(S.examples)h+='<div class="note"><span>These are example entries, so you can see how a day looks.</span><div><button type="button" class="btn sm" data-act="fresh">Start fresh</button><button type="button" class="btn sm soft" data-act="keep">Keep them</button></div></div>';
   h+=balance();
   var sc=S.wheel&&S.wheel.scores||{},dn=S.tasks.length-open.length,go='<span class="go">'+ic("right")+'</span>';
@@ -503,7 +503,7 @@ function vToday(){
 function vTasks(){
   var open=S.tasks.filter(function(t){return !t.done;}).sort(function(a,b){return (a.due||"9999").localeCompare(b.due||"9999");});
   var done=S.tasks.filter(function(t){return t.done;});
-  var h='<div class="hello"><p class="muted small">'+esc(new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric"}))+'</p><h1>Tasks</h1><p class="muted">One thing at a time is enough.</p></div>';
+  var h='<div class="hello"><p class="muted small">'+esc(new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"}))+'</p><h1>Tasks</h1><p class="muted">One thing at a time is enough.</p></div>';
   h+=open.length?'<div class="card rows">'+open.map(taskRow).join("")+'</div>':empty("All clear","Nothing is asking for you right now.");
   if(done.length)h+='<section class="sec"><div class="sechead"><h2>Done</h2><button type="button" class="link" data-act="cleardone">Clear done</button></div><div class="card rows">'+done.map(taskRow).join("")+'</div></section>';
   return h;
@@ -512,7 +512,7 @@ function vHabits(){
   var wk=weekKeys(),td=shift(0);
   var h='<h1>Habits</h1><p class="muted">Small and steady. A missed day is only a day.</p>';
   if(!S.habits.length)return h+empty("No habits planted yet","Add one small thing you would like to return to.");
-  h+='<div class="week head">'+wk.map(function(k){var d=parse(k);return '<div'+(k===td?' class="now"':'')+'>'+d.toLocaleDateString(undefined,{weekday:"short"}).slice(0,2)+'<b class="num">'+d.getDate()+'</b></div>';}).join("")+'</div>';
+  h+='<div class="week head">'+wk.map(function(k){var d=parse(k);return '<div'+(k===td?' class="now"':'')+'>'+d.toLocaleDateString("en-GB",{weekday:"short"}).slice(0,2)+'<b class="num">'+d.getDate()+'</b></div>';}).join("")+'</div>';
   PARTS.forEach(function(p){
     var list=S.habits.filter(function(x){return (x.part||"any")===p[0];});if(!list.length)return;
     h+='<div class="part">'+p[1]+'</div><div class="card rows">'+list.map(function(x){

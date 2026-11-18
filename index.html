@@ -223,6 +223,18 @@ nav button[aria-current="page"] span{background:var(--sky)}
 .bact label{position:relative;overflow:hidden}
 .filecover{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
 .bact label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+/* welcome tour */
+.tour{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.tour .skip{align-self:flex-end;color:var(--muted);font-weight:600;font-size:14px;padding:8px 4px;min-height:40px}
+.tour .art{width:132px;height:120px;display:grid;place-items:center}
+.tour .art .pal{width:128px;filter:none;cursor:default}
+.tour .orb{width:96px;height:96px}
+.tour h2{font-size:24px;text-wrap:balance}
+.tour p{max-width:34ch;color:var(--muted);font-size:16px}
+.dots{display:flex;gap:6px;align-items:center}
+.dots i{width:8px;height:8px;border-radius:999px;background:var(--line);transition:width .2s}
+.dots i.on{width:22px;background:var(--accent)}
+.tour .acts{width:100%}
 </style>
 </head>
 <body>
@@ -277,6 +289,16 @@ var SUGGEST={
  "Nutrition & Healthy Eating":[["Drink a glass of water","drop","morning"],["Eat a piece of fruit","leaf","any"],["Add vegetables to one meal","leaf","any"],["Cook a meal at home","sun","evening"],["Eat slowly, without screens","wave","any"]],
  "Financial Wellness":[["Note today's spending","leaf","evening"],["Put a little into savings","drop","any"],["A day with no impulse buys","tree","any"],["Check my budget for the week","book","any"]]
 };
+var TOUR=[
+ ["pal","Welcome, I am Puff","This is Life Planner, a gentle place to notice how life feels, tend small habits and keep track of what matters. Let me show you around. It only takes a minute."],
+ ["sage|leaf","Begin with your balance wheel","On the Today page, rate six areas of life from 1 to 10: Mindfulness, Self Care, Productivity, Mental Health, Nutrition and Financial Wellness. The wheel shows where a little more care could help."],
+ ["petal|sprout","Plant small habits","Tap an area card or Add habit, then open Choose a habit for ready made ideas. Tick each day you do it. A missed day is only a day."],
+ ["sun|check","Tasks for the day","Add what you need to do, with a due date if you like. The Today page shows only what is waiting for you now."],
+ ["mist|book","Journal and money","Write a few honest lines and choose the weather inside. Note what comes in and goes out. Money totals only appear on the Money page."],
+ ["sky|hill","Finding your way","Use the bar at the bottom to move between Today, Tasks, Habits, Journal and Money. The button at the bottom right of each section adds something new. Settings live behind the gear at the top."],
+ ["paljoy","Make it yours","Add a picture that means something to you on the front page. The example entries show how things look, so tap Start fresh when you are ready. What you add is private to you."]
+];
+var tourStep=0;
 var LINES=["A river reaches the sea one bend at a time.","Small roots hold tall trees.","Nothing in a garden blooms all year.","Tend one thing well today.","Clouds pass. The sky stays.","Seeds do their best work unseen.","Walk at the pace of your breath."];
 
 function ic(n,s){s=s||22;return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+I[n]+'</svg>';}
@@ -529,6 +551,14 @@ function palLines(){
   if(!S.journal.some(function(j){return j.date===td;}))a.push("A line in your journal would be lovely today.");
   return a.concat(["Breathe in slowly. And out. I am right here.","You are doing better than you think.","Small steps still move you forward.","Have you had some water?","I like floating next to you."]);
 }
+function tourHtml(){
+  var t=TOUR[tourStep],last=tourStep===TOUR.length-1,art;
+  if(t[0]==="pal"||t[0]==="paljoy")art='<span class="pal">'+pal(t[0]==="paljoy"?"joy":"calm")+'</span>';
+  else{var q=t[0].split("|");art='<span class="k-'+q[0]+'"><span class="orb">'+ic(q[1],44)+'</span></span>';}
+  return '<div class="tour">'+(last?'<span style="min-height:40px"></span>':'<button type="button" class="skip" data-act="tdone">Skip</button>')+'<div class="art" aria-hidden="true">'+art+'</div><h2>'+t[1]+'</h2><p>'+t[2]+'</p><div class="dots" aria-label="Step '+(tourStep+1)+' of '+TOUR.length+'">'+TOUR.map(function(x,i){return '<i class="'+(i===tourStep?"on":"")+'"></i>';}).join("")+'</div><div class="acts">'+
+   (last?'<button type="button" class="btn soft" data-act="tdone">Look around first</button><button type="button" class="btn" data-act="tstart">Start my wheel</button>'
+        :(tourStep?'<button type="button" class="btn soft" data-act="tback">Back</button>':'')+'<button type="button" class="btn" data-act="tnext">'+(tourStep?"Next":"Show me around")+'</button>')+'</div></div>';
+}
 /* sheets */
 function head(t){return '<div class="top"><h2>'+t+'</h2><button type="button" class="iconbtn" aria-label="Close" data-act="close">'+ic("x")+'</button></div>';}
 function openSheet(kind,id){
@@ -540,6 +570,7 @@ function openSheet(kind,id){
     h=head(j?"Journal entry":"New journal entry")+'<form data-form="journal" data-id="'+(j?j.id:"")+'"><label>Date<input type="date" id="journal-date" name="date" required value="'+(j?j.date:td)+'" max="'+td+'"></label><div class="lbl">Weather inside<div class="pick">'+MOODS.map(function(m){return '<label><input type="radio" name="mood" id="journal-mood-'+m[0]+'" value="'+m[0]+'"'+((j?j.mood:"fair")===m[0]?" checked":"")+'><span>'+ic(m[0],20)+m[1]+'</span></label>';}).join("")+'</div></div><label>Your words<textarea id="journal-text" name="text" required maxlength="6000" placeholder="What stayed with you today?">'+(j?esc(j.text):"")+'</textarea></label><div class="acts">'+(j?'<button class="btn warn" type="button" data-act="rm" data-kind="journal" data-id="'+j.id+'">Remove</button>':"")+'<button class="btn" type="submit">Save entry</button></div></form>';
   }
   if(kind==="money")h=head("New amount")+'<form data-form="money"><div class="pick"><label><input type="radio" name="type" id="money-out" value="out" checked><span>Went out</span></label><label><input type="radio" name="type" id="money-in" value="in"><span>Came in</span></label></div><div class="two"><label>Amount ('+esc(S.currency)+')<input type="number" id="money-amount" name="amount" required min="0.01" step="0.01" inputmode="decimal"></label><label>Date<input type="date" id="money-date" name="date" required value="'+td+'"></label></div><div class="lbl">Category<div class="pick" id="money-cat">'+catPick("out")+'</div></div><label>Note (optional)<input type="text" id="money-note" name="note" maxlength="80" autocomplete="off"></label><button class="btn" type="submit">Add amount</button></form>';
+  if(kind==="tour"){tourStep=0;h=tourHtml();try{localStorage.setItem(KEY+"-tour","1");}catch(e){}}
   if(kind==="balance"){
     var sc=S.wheel&&S.wheel.scores||{};
     h=head("Life balance wheel")+'<p class="muted small">How full does each area feel today, from 1 (running dry) to 10 (flourishing)? There are no right answers.</p><div id="wheel-live">'+wheel(AREAS.reduce(function(o,a){o[a[0]]=sc[a[0]]||5;return o;},{}))+'</div><form data-form="balance">'+AREAS.map(function(a){var v=sc[a[0]]||5;return '<label class="slide"><span>'+esc(a[1])+'</span><input type="range" id="bal-'+a[0]+'" name="'+a[0]+'" min="1" max="10" step="1" value="'+v+'"><output id="bal-out-'+a[0]+'" class="num">'+v+'</output></label>';}).join("")+'<button class="btn" type="submit">Save my wheel</button></form>';
@@ -547,7 +578,7 @@ function openSheet(kind,id){
   if(kind==="settings"){
     armed=false;
     var where=sync==="account"?"Your planner is saved privately to your account, so it follows you between phones.":sync==="waiting"?"Your account storage has not answered yet. Changes are kept on this device for now.":"Your planner is saved on this device.";
-    h=head("Settings")+'<form data-form="settings"><label>Your first name (optional)<input type="text" id="set-name" name="name" maxlength="30" value="'+esc(S.name)+'" autocomplete="off"></label><label>Currency symbol<input type="text" id="set-cur" name="currency" maxlength="4" required value="'+esc(S.currency)+'" autocomplete="off"></label><p class="small muted">'+where+' Save a backup now and then, so you can restore it on a new phone.</p><div class="acts"><button class="btn soft" type="button" data-act="backup">Save a backup</button><label class="btn soft" style="position:relative;overflow:hidden;flex-direction:row;align-items:center;justify-content:center;color:var(--ink);font-size:16px;font-weight:600">Restore a backup<input type="file" id="restore-file" class="filecover" accept="application/json,.json" aria-label="Choose a backup file"></label></div><div class="acts"><button class="btn warn" type="button" id="wipe" data-act="wipe">Clear everything</button><button class="btn" type="submit">Save</button></div></form>';
+    h=head("Settings")+'<form data-form="settings"><button type="button" class="btn soft" data-act="open" data-kind="tour">Show the welcome tour</button><label>Your first name (optional)<input type="text" id="set-name" name="name" maxlength="30" value="'+esc(S.name)+'" autocomplete="off"></label><label>Currency symbol<input type="text" id="set-cur" name="currency" maxlength="4" required value="'+esc(S.currency)+'" autocomplete="off"></label><p class="small muted">'+where+' Save a backup now and then, so you can restore it on a new phone.</p><div class="acts"><button class="btn soft" type="button" data-act="backup">Save a backup</button><label class="btn soft" style="position:relative;overflow:hidden;flex-direction:row;align-items:center;justify-content:center;color:var(--ink);font-size:16px;font-weight:600">Restore a backup<input type="file" id="restore-file" class="filecover" accept="application/json,.json" aria-label="Choose a backup file"></label></div><div class="acts"><button class="btn warn" type="button" id="wipe" data-act="wipe">Clear everything</button><button class="btn" type="submit">Save</button></div></form>';
   }
   $("sheet").innerHTML=h;$("veil").hidden=false;
   var f=$("sheet").querySelector("input[type=text],input[type=number],textarea");if(f&&kind!=="settings"&&!id)f.focus();
@@ -579,6 +610,9 @@ document.addEventListener("click",function(e){
   else if(a==="backup"){
     try{var bl=new Blob([JSON.stringify({planner:S,photo:photo})],{type:"application/json"}),u=URL.createObjectURL(bl),ln=document.createElement("a");ln.href=u;ln.download="life-planner-backup-"+shift(0)+".json";document.body.appendChild(ln);ln.click();ln.remove();setTimeout(function(){URL.revokeObjectURL(u);},2000);toast("Backup saved to your downloads.");}catch(e){toast("The backup could not be saved.");}
   }
+  else if(a==="tnext"||a==="tback"){tourStep=Math.max(0,Math.min(TOUR.length-1,tourStep+(a==="tnext"?1:-1)));$("sheet").innerHTML=tourHtml();var nb=$("sheet").querySelector(".tour .btn:last-child");if(nb)nb.focus();}
+  else if(a==="tdone"){closeSheet();}
+  else if(a==="tstart"){closeSheet();go("today");openSheet("balance");}
   else if(a==="dd"){var dl=$("habit-ddlist");dl.hidden=!dl.hidden;b.setAttribute("aria-expanded",String(!dl.hidden));}
   else if(a==="pickhabit"){
     var q=(id||"").split("|"),x=q.length>1&&AREAS[+q[0]]?(SUGGEST[AREAS[+q[0]][1]]||[])[+q[1]]:null;
@@ -633,6 +667,8 @@ window.addEventListener("hashchange",function(){var t=location.hash.slice(1);if(
 var h0=location.hash.slice(1);if(VIEWS[h0])tab=h0;
 render();
 connect();
+var seenTour=false;try{seenTour=!!localStorage.getItem(KEY+"-tour");}catch(e){seenTour=true;}
+if(!seenTour)setTimeout(function(){if($("veil").hidden)openSheet("tour");},400);
 })();
 </script>
 

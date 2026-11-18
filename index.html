@@ -260,6 +260,18 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 .day:not([aria-pressed="true"]){box-shadow:inset 0 3px 6px rgba(20,20,60,.16),inset 0 -1px 0 rgba(255,255,255,.9)}
 .check[aria-pressed="true"],.day[aria-pressed="true"]{background-image:radial-gradient(circle at 32% 24%,rgba(255,255,255,.7) 0,rgba(255,255,255,0) 50%)}
 .wheel{overflow:visible}
+/* language switch, always readable */
+.topr{display:flex;align-items:center;gap:8px}
+.langbtn{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 14px;border-radius:999px;color:var(--sky-ink);font-size:14px;letter-spacing:.04em;
+  background-color:var(--surface);background-image:linear-gradient(180deg,#ffffff 0,var(--surface2) 100%);box-shadow:inset 0 -2px 4px rgba(20,20,60,.08),inset 0 2px 2px #ffffff,0 5px 12px -4px rgba(70,60,140,.35)}
+.langlist{display:flex;flex-direction:column;gap:10px}
+.langopt{display:flex;justify-content:space-between;align-items:center;min-height:60px;padding:0 20px;border-radius:24px;font-size:18px;font-weight:600;color:var(--ink);
+  background-color:var(--surface);background-image:linear-gradient(180deg,#ffffff 0,var(--surface2) 100%);box-shadow:inset 0 -2px 4px rgba(20,20,60,.08),0 5px 12px -4px rgba(70,60,140,.3)}
+.langopt b{font-size:13px;color:var(--muted);letter-spacing:.06em}
+.langopt[aria-current="true"]{background:var(--sky);color:var(--sky-ink);box-shadow:inset 0 0 0 2px var(--accent)}
+.tlang{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tlang button{padding:8px 14px;min-height:40px;border-radius:999px;font-weight:600;font-size:14px;background:var(--surface2);color:var(--ink)}
+.tlang button[aria-current="true"]{background:var(--sky);color:var(--sky-ink);box-shadow:inset 0 0 0 2px var(--accent)}
 /* welcome tour */
 .tour{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
 .tour .skip{align-self:flex-end;color:var(--muted);font-weight:600;font-size:14px;padding:8px 4px;min-height:40px}
@@ -298,6 +310,7 @@ var I={
  x:'<path d="M6 6l12 12M18 6L6 18"/>',
  down:'<path d="M6 9l6 6 6-6"/>',
  right:'<path d="M9 6l6 6-6 6"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.500 2.700 3.800 5.700 3.800 9s-1.300 6.300-3.800 9c-2.500-2.700-3.800-5.700-3.800-9S9.500 5.700 12 3z"/>',
  camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.500"/>',
  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.500v3M12 18.500v3M2.500 12h3M18.500 12h3M5.300 5.300l2.100 2.100M16.600 16.600l2.100 2.100M18.700 5.300l-2.100 2.100M7.400 16.600l-2.100 2.100"/>',
  leaf:'<path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14M5 19l7-7"/>',
@@ -343,7 +356,10 @@ function T(str,o){var d=DICT[str],r=(LANG!=="en"&&d&&d[LANG==="af"?0:1])||str;if
 function loc(){var l={en:"en-GB",af:"af-ZA",zu:"zu-ZA"}[LANG]||"en-GB";try{if(!Intl.DateTimeFormat.supportedLocalesOf([l]).length)l="en-GB";}catch(e){l="en-GB";}return l;}
 function setLang(l){LANG=l;try{localStorage.setItem(KEY+"-lang",l);}catch(e){}try{document.documentElement.lang=l==="en"?"en-GB":l;}catch(e){}palMsg="";
   if(S.examples){var nm=S.name,cu=S.currency;S=examples();S.name=nm;S.currency=cu;}}
-function langPick(){return '<div class="lbl">'+T("Language")+'<div class="pick">'+[["en","English"],["af","Afrikaans"],["zu","isiZulu"]].map(function(l){return '<label><input type="radio" name="lang" id="set-lang-'+l[0]+'" value="'+l[0]+'"'+(LANG===l[0]?" checked":"")+'><span>'+l[1]+'</span></label>';}).join("")+'</div></div>';}
+DICT["Language changed."]=["Taal verander.","Ulimi lushintshiwe."];
+var LANGS=[["en","English"],["af","Afrikaans"],["zu","isiZulu"]];
+function langList(){return '<div class="langlist">'+LANGS.map(function(l){return '<button type="button" class="langopt" data-act="setlang" data-id="'+l[0]+'" aria-current="'+(LANG===l[0])+'" lang="'+l[0]+'"><span>'+l[1]+'</span>'+(LANG===l[0]?ic("check",20):'<b>'+l[0].toUpperCase()+'</b>')+'</button>';}).join("")+'</div>';}
+function langPick(){return '<div class="lbl"><span style="display:flex;align-items:center;gap:6px">'+ic("globe",18)+'Language · Taal · Ulimi</span><div class="pick">'+[["en","English"],["af","Afrikaans"],["zu","isiZulu"]].map(function(l){return '<label><input type="radio" name="lang" id="set-lang-'+l[0]+'" value="'+l[0]+'"'+(LANG===l[0]?" checked":"")+'><span>'+l[1]+'</span></label>';}).join("")+'</div></div>';}
 try{document.documentElement.lang=LANG==="en"?"en-GB":LANG;}catch(e){}
 var LINES=["A river reaches the sea one bend at a time.","Small roots hold tall trees.","Nothing in a garden blooms all year.","Tend one thing well today.","Clouds pass. The sky stays.","Seeds do their best work unseen.","Walk at the pace of your breath."];
 
@@ -522,7 +538,7 @@ function vToday(){
   var focus=open.filter(function(t){return !t.due||t.due<=td;}).slice(0,5);
   var mk=td.slice(0,7),mt=totals(S.money.filter(function(m){return m.date.slice(0,7)===mk;})),all=totals(S.money);
   var wrote=S.journal.some(function(j){return j.date===td;});
-  var h='<div class="top"><div class="brand"><span class="k-sage"><span class="orb mini">'+ic("sprout",18)+'</span></span>Life Planner</div><button type="button" class="iconbtn" aria-label="'+T("Settings")+'" data-act="open" data-kind="settings">'+ic("gear")+'</button></div>'+banner()+
+  var h='<div class="top"><div class="brand"><span class="k-sage"><span class="orb mini">'+ic("sprout",18)+'</span></span>Life Planner</div><div class="topr"><button type="button" class="langbtn" data-act="open" data-kind="lang" aria-label="Language, Taal, Ulimi">'+ic("globe",20)+'<b>'+LANG.toUpperCase()+'</b></button><button type="button" class="iconbtn" aria-label="'+T("Settings")+'" data-act="open" data-kind="settings">'+ic("gear")+'</button></div></div>'+banner()+
   '<div class="hi"><div class="hello"><p class="muted small">'+esc(new Date().toLocaleDateString(loc(),{weekday:"long",day:"numeric",month:"long"}))+'</p><h1>'+g+(S.name?", "+esc(S.name):"")+'</h1><p class="line">'+T(LINES[doy%LINES.length])+'</p></div><button type="button" class="pal" data-act="pal" aria-label="'+T("Puff, your little cloud friend. Tap to say hello")+'">'+pal(ht&&hd===ht?"joy":(hr>=21||hr<5)?"sleep":"calm")+'</button></div><p class="bubble" id="pal-say" aria-live="polite">'+esc(palMsg||T("Hello, I am Puff. Tap me whenever you like."))+'</p>';
   if(S.examples)h+='<div class="note"><span>'+T("These are example entries, so you can see how a day looks.")+'</span><div><button type="button" class="btn sm" data-act="fresh">'+T("Start fresh")+'</button><button type="button" class="btn sm soft" data-act="keep">'+T("Keep them")+'</button></div></div>';
   h+=balance();
@@ -609,7 +625,7 @@ function tourHtml(){
   var t=TOUR[tourStep],last=tourStep===TOUR.length-1,art;
   if(t[0]==="pal"||t[0]==="paljoy")art='<span class="pal">'+pal(t[0]==="paljoy"?"joy":"calm")+'</span>';
   else{var q=t[0].split("|");art='<span class="k-'+q[0]+'"><span class="orb">'+ic(q[1],54)+'</span></span>';}
-  return '<div class="tour">'+(last?'<span style="min-height:40px"></span>':'<button type="button" class="skip" data-act="tdone">'+T("Skip")+'</button>')+'<div class="art" aria-hidden="true">'+art+'</div><h2>'+T(t[1])+'</h2><p>'+T(t[2])+'</p><div class="dots" aria-label="'+T("Step {a} of {b}",{a:tourStep+1,b:TOUR.length})+'">'+TOUR.map(function(x,i){return '<i class="'+(i===tourStep?"on":"")+'"></i>';}).join("")+'</div><div class="acts">'+
+  return '<div class="tour">'+(last?'<span style="min-height:40px"></span>':'<button type="button" class="skip" data-act="tdone">'+T("Skip")+'</button>')+'<div class="art" aria-hidden="true">'+art+'</div><h2>'+T(t[1])+'</h2><p>'+T(t[2])+'</p>'+(tourStep===0?'<div class="tlang">'+LANGS.map(function(l){return '<button type="button" data-act="setlang" data-id="'+l[0]+'" aria-current="'+(LANG===l[0])+'" lang="'+l[0]+'">'+l[1]+'</button>';}).join("")+'</div>':'')+'<div class="dots" aria-label="'+T("Step {a} of {b}",{a:tourStep+1,b:TOUR.length})+'">'+TOUR.map(function(x,i){return '<i class="'+(i===tourStep?"on":"")+'"></i>';}).join("")+'</div><div class="acts">'+
    (last?'<button type="button" class="btn soft" data-act="tdone">'+T("Look around first")+'</button><button type="button" class="btn" data-act="tstart">'+T("Start my wheel")+'</button>'
         :(tourStep?'<button type="button" class="btn soft" data-act="tback">'+T("Back")+'</button>':'')+'<button type="button" class="btn" data-act="tnext">'+T(tourStep?"Next":"Show me around")+'</button>')+'</div></div>';
 }
@@ -624,6 +640,7 @@ function openSheet(kind,id){
     h=head(T(j?"Journal entry":"New journal entry"))+'<form data-form="journal" data-id="'+(j?j.id:"")+'"><label>'+T("Date")+'<input type="date" id="journal-date" name="date" required value="'+(j?j.date:td)+'" max="'+td+'"></label><div class="lbl">'+T("Weather inside")+'<div class="pick">'+MOODS.map(function(m){return '<label><input type="radio" name="mood" id="journal-mood-'+m[0]+'" value="'+m[0]+'"'+((j?j.mood:"fair")===m[0]?" checked":"")+'><span>'+ic(m[0],20)+T(m[1])+'</span></label>';}).join("")+'</div></div><label>'+T("Your words")+'<textarea id="journal-text" name="text" required maxlength="6000" placeholder="'+T("What stayed with you today?")+'">'+(j?esc(j.text):"")+'</textarea></label><div class="acts">'+(j?'<button class="btn warn" type="button" data-act="rm" data-kind="journal" data-id="'+j.id+'">'+T("Remove")+'</button>':"")+'<button class="btn" type="submit">'+T("Save entry")+'</button></div></form>';
   }
   if(kind==="money")h=head(T("New amount"))+'<form data-form="money"><div class="pick"><label><input type="radio" name="type" id="money-out" value="out" checked><span>'+T("Went out")+'</span></label><label><input type="radio" name="type" id="money-in" value="in"><span>'+T("Came in")+'</span></label></div><div class="two"><label>'+esc(T("Amount ({c})",{c:S.currency}))+'<input type="number" id="money-amount" name="amount" required min="0.01" step="0.01" inputmode="decimal"></label><label>'+T("Date")+'<input type="date" id="money-date" name="date" required value="'+td+'"></label></div><div class="lbl">'+T("Category")+'<div class="pick" id="money-cat">'+catPick("out")+'</div></div><label>'+T("Note (optional)")+'<input type="text" id="money-note" name="note" maxlength="80" autocomplete="off"></label><button class="btn" type="submit">'+T("Add amount")+'</button></form>';
+  if(kind==="lang")h='<div class="top"><h2 style="display:flex;align-items:center;gap:8px">'+ic("globe",22)+'Language · Taal · Ulimi</h2><button type="button" class="iconbtn" aria-label="Close" data-act="close">'+ic("x")+'</button></div>'+langList();
   if(kind==="tour"){tourStep=0;h=tourHtml();try{localStorage.setItem(KEY+"-tour","1");}catch(e){}}
   if(kind==="balance"){
     var sc=S.wheel&&S.wheel.scores||{};
@@ -665,6 +682,11 @@ document.addEventListener("click",function(e){
     try{var bl=new Blob([JSON.stringify({planner:S,photo:photo})],{type:"application/json"}),u=URL.createObjectURL(bl),ln=document.createElement("a");ln.href=u;ln.download="life-planner-backup-"+shift(0)+".json";document.body.appendChild(ln);ln.click();ln.remove();setTimeout(function(){URL.revokeObjectURL(u);},2000);toast(T("Backup saved to your downloads."));}catch(e){toast(T("The backup could not be saved."));}
   }
   else if(a==="tnext"||a==="tback"){tourStep=Math.max(0,Math.min(TOUR.length-1,tourStep+(a==="tnext"?1:-1)));$("sheet").innerHTML=tourHtml();var nb=$("sheet").querySelector(".tour .btn:last-child");if(nb)nb.focus();}
+  else if(a==="setlang"){
+    if(id&&id!==LANG){var hadEx=S.examples;setLang(id);if(hadEx)save();}
+    if($("sheet").querySelector(".tour")){$("sheet").innerHTML=tourHtml();render();}
+    else{closeSheet();render();toast(T("Language changed."));}
+  }
   else if(a==="tdone"){closeSheet();}
   else if(a==="tstart"){closeSheet();go("today");openSheet("balance");}
   else if(a==="dd"){var dl=$("habit-ddlist");dl.hidden=!dl.hidden;b.setAttribute("aria-expanded",String(!dl.hidden));}

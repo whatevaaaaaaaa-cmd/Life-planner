@@ -229,7 +229,9 @@ nav button[aria-current="page"] span{background:var(--sky)}
   box-shadow:inset 0 -5px 9px rgba(20,20,60,.16),inset 0 3px 6px rgba(255,255,255,.55),0 9px 16px -6px rgba(70,60,140,.45),0 2px 3px rgba(70,60,140,.12);
 }
 .orb{box-shadow:inset 0 -6px 11px rgba(20,20,60,.18),inset 0 4px 7px rgba(255,255,255,.6),0 10px 18px -6px color-mix(in srgb,var(--k) 85%,#1e1b4b),0 2px 4px rgba(70,60,140,.15)}
-.orb svg,.badge svg,.chip .dot svg{filter:drop-shadow(0 2px 1.500px rgba(20,20,60,.28))}
+.orb svg,.badge svg,.chip .dot svg{stroke-width:2.600;filter:drop-shadow(0 1.500px 1px rgba(20,20,60,.45))}
+.k-sun .orb svg,.k-rose .orb svg{filter:drop-shadow(0 1px 0 rgba(255,255,255,.6))}
+.k-sun .orb{color:#5a3e00}.k-rose .orb{color:#6e2c17}
 .tour .orb{box-shadow:inset 0 -10px 18px rgba(20,20,60,.18),inset 0 6px 10px rgba(255,255,255,.6),0 18px 30px -10px color-mix(in srgb,var(--k) 85%,#1e1b4b)}
 .check[aria-pressed="true"],.day[aria-pressed="true"],.fab,nav button[aria-current="page"] span{
   background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 55%);
@@ -437,7 +439,7 @@ function ring(p){
   p=Math.max(0,Math.min(100,Math.round(p)));var c=2*Math.PI*21;
   return '<svg width="52" height="52" viewBox="0 0 52 52" role="img" aria-label="'+p+' percent" style="flex:none"><circle cx="26" cy="26" r="21" fill="none" stroke="var(--k)" stroke-opacity="0.200" stroke-width="5"/><circle cx="26" cy="26" r="21" fill="none" stroke="var(--k)" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+(c*p/100).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 26 26)"/><text x="26" y="30.500" text-anchor="middle" class="ringt">'+p+'%</text></svg>';
 }
-function kard(k,icon,title,sub,right,attrs){return '<button type="button" class="kard k-'+k+'" '+attrs+'><span class="orb">'+ic(icon,26)+'</span><span class="grow"><b>'+title+'</b><small>'+sub+'</small></span>'+right+'</button>';}
+function kard(k,icon,title,sub,right,attrs){return '<button type="button" class="kard k-'+k+'" '+attrs+'><span class="orb">'+ic(icon,32)+'</span><span class="grow"><b>'+title+'</b><small>'+sub+'</small></span>'+right+'</button>';}
 function banner(){
   var has=photo&&photo.data&&photo.data.indexOf("data:image/")===0;
   return '<div class="banner">'+(has?'<img src="'+photo.data+'" alt="Your chosen picture">':scene())+'<div class="bact"><label class="btn sm">'+ic("camera",18)+(has?"Change":"Add your picture")+'<input type="file" id="photo-file" class="filecover" accept="image/*" aria-label="Choose a picture"></label>'+(has?'<button type="button" class="btn sm" data-act="rmphoto">Remove</button>':'')+'</div></div>';
@@ -489,7 +491,7 @@ function vToday(){
   var sc=S.wheel&&S.wheel.scores||{},dn=S.tasks.length-open.length,go='<span class="go">'+ic("right")+'</span>';
   h+='<section class="sec"><h2>Your areas</h2><div class="kards">'+AREAS.map(function(a,i){var n=S.habits.filter(function(x){return String(x.area)===String(i);}).length,v=+sc[a[0]]||0;return kard(a[2],a[4],esc(a[1]),n+(n===1?" habit":" habits")+(v?" · "+v+" of 10":""),ring(v*10),'data-act="open" data-kind="habit" data-id="'+i+'"');}).join("")+'</div></section>';
   h+='<section class="sec"><h2>Your day</h2><div class="kards">'+kard("sky","check","Tasks",open.length+" open",ring(S.tasks.length?dn/S.tasks.length*100:0),'data-act="tab" data-id="tasks"')+kard("sage","sprout","Habits",hd+" of "+ht+" today",ring(ht?hd/ht*100:0),'data-act="tab" data-id="habits"')+kard("petal","book","Journal",wrote?"Written today":"Not yet today",go,'data-act="tab" data-id="journal"')+kard("mist","coin","Money",S.money.length+(S.money.length===1?" entry":" entries"),go,'data-act="tab" data-id="money"')+'</div></section>';
-  h+='<div class="quick"><button type="button" class="k-sky" data-act="open" data-kind="task"><span class="orb">'+ic("check",24)+'</span>Task</button><button type="button" class="k-sage" data-act="open" data-kind="habit"><span class="orb">'+ic("sprout",24)+'</span>Habit</button><button type="button" class="k-petal" data-act="open" data-kind="journal"><span class="orb">'+ic("book",24)+'</span>Entry</button><button type="button" class="k-mist" data-act="open" data-kind="money"><span class="orb">'+ic("coin",24)+'</span>Amount</button></div>';
+  h+='<div class="quick"><button type="button" class="k-sky" data-act="open" data-kind="task"><span class="orb">'+ic("check",30)+'</span>Task</button><button type="button" class="k-sage" data-act="open" data-kind="habit"><span class="orb">'+ic("sprout",30)+'</span>Habit</button><button type="button" class="k-petal" data-act="open" data-kind="journal"><span class="orb">'+ic("book",30)+'</span>Entry</button><button type="button" class="k-mist" data-act="open" data-kind="money"><span class="orb">'+ic("coin",30)+'</span>Amount</button></div>';
   h+='<section class="sec"><div class="sechead"><h2>Habits to tend</h2><button type="button" class="link" data-act="tab" data-id="habits">See the week</button></div>';
   if(ht){h+='<div class="bar" aria-hidden="true"><i style="width:'+(hd/ht*100)+'%"></i></div><div class="chips">'+S.habits.map(function(x){var on=!!x.log[td];return '<button type="button" class="chip" aria-pressed="'+on+'" data-act="habit" data-id="'+x.id+'" data-day="'+td+'"><span class="dot f-'+HCOL[x.icon]+'">'+ic(on?"check":x.icon,16)+'</span>'+esc(x.name)+'</button>';}).join("")+'</div>';}
   else h+=empty("No habits planted yet","Start with one small thing you can do most days.");
@@ -568,7 +570,7 @@ function palLines(){
 function tourHtml(){
   var t=TOUR[tourStep],last=tourStep===TOUR.length-1,art;
   if(t[0]==="pal"||t[0]==="paljoy")art='<span class="pal">'+pal(t[0]==="paljoy"?"joy":"calm")+'</span>';
-  else{var q=t[0].split("|");art='<span class="k-'+q[0]+'"><span class="orb">'+ic(q[1],44)+'</span></span>';}
+  else{var q=t[0].split("|");art='<span class="k-'+q[0]+'"><span class="orb">'+ic(q[1],54)+'</span></span>';}
   return '<div class="tour">'+(last?'<span style="min-height:40px"></span>':'<button type="button" class="skip" data-act="tdone">Skip</button>')+'<div class="art" aria-hidden="true">'+art+'</div><h2>'+t[1]+'</h2><p>'+t[2]+'</p><div class="dots" aria-label="Step '+(tourStep+1)+' of '+TOUR.length+'">'+TOUR.map(function(x,i){return '<i class="'+(i===tourStep?"on":"")+'"></i>';}).join("")+'</div><div class="acts">'+
    (last?'<button type="button" class="btn soft" data-act="tdone">Look around first</button><button type="button" class="btn" data-act="tstart">Start my wheel</button>'
         :(tourStep?'<button type="button" class="btn soft" data-act="tback">Back</button>':'')+'<button type="button" class="btn" data-act="tnext">'+(tourStep?"Next":"Show me around")+'</button>')+'</div></div>';

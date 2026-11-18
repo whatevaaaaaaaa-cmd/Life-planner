@@ -223,6 +223,20 @@ nav button[aria-current="page"] span{background:var(--sky)}
 .bact label{position:relative;overflow:hidden}
 .filecover{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
 .bact label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+/* 3D icons: a light from the top left, a soft shade underneath, and a coloured shadow below */
+.orb,.badge,.chip .dot,.quick .orb{
+  background-image:radial-gradient(circle at 32% 24%,rgba(255,255,255,.85) 0,rgba(255,255,255,.25) 26%,rgba(255,255,255,0) 46%),radial-gradient(circle at 50% 118%,rgba(20,20,60,.22) 0,rgba(20,20,60,0) 58%);
+  box-shadow:inset 0 -5px 9px rgba(20,20,60,.16),inset 0 3px 6px rgba(255,255,255,.55),0 9px 16px -6px rgba(70,60,140,.45),0 2px 3px rgba(70,60,140,.12);
+}
+.orb{box-shadow:inset 0 -6px 11px rgba(20,20,60,.18),inset 0 4px 7px rgba(255,255,255,.6),0 10px 18px -6px color-mix(in srgb,var(--k) 85%,#1e1b4b),0 2px 4px rgba(70,60,140,.15)}
+.orb svg,.badge svg,.chip .dot svg{filter:drop-shadow(0 2px 1.500px rgba(20,20,60,.28))}
+.tour .orb{box-shadow:inset 0 -10px 18px rgba(20,20,60,.18),inset 0 6px 10px rgba(255,255,255,.6),0 18px 30px -10px color-mix(in srgb,var(--k) 85%,#1e1b4b)}
+.check[aria-pressed="true"],.day[aria-pressed="true"],.fab,nav button[aria-current="page"] span{
+  background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 55%);
+  box-shadow:inset 0 -3px 5px rgba(20,20,60,.18),0 5px 10px -4px rgba(70,60,140,.45);
+}
+.fab{box-shadow:inset 0 -4px 7px rgba(20,20,60,.2),0 12px 22px -8px rgba(70,60,140,.6)}
+.kard .orb{width:56px;height:56px}
 /* welcome tour */
 .tour{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
 .tour .skip{align-self:flex-end;color:var(--muted);font-weight:600;font-size:14px;padding:8px 4px;min-height:40px}
@@ -539,7 +553,7 @@ function pal(m){
   var ink='stroke="var(--ink)" stroke-width="2.500" stroke-linecap="round" fill="none"';
   var eyes=m==="joy"?'<path d="M45 64q5-7 10 0M65 64q5-7 10 0" '+ink+'/>':m==="sleep"?'<path d="M45 62q5 5 10 0M65 62q5 5 10 0" '+ink+'/>':'<g class="eyes"><circle cx="50" cy="62" r="3.500" fill="var(--ink)"/><circle cx="70" cy="62" r="3.500" fill="var(--ink)"/></g>';
   var mouth=m==="joy"?'<path d="M54 71q6 8 12 0z" fill="var(--petal-ink)"/>':'<path d="M55 71q5 4 10 0" '+ink+'/>';
-  return '<svg viewBox="0 0 120 112" aria-hidden="true"><path d="M60 30V16" stroke="var(--sage-ink)" stroke-width="2.500" stroke-linecap="round" fill="none"/><ellipse cx="52" cy="14" rx="9" ry="5" transform="rotate(-25 52 14)" fill="var(--sage)" stroke="var(--sage-ink)" stroke-width="1.500"/><ellipse cx="68" cy="12" rx="9" ry="5" transform="rotate(25 68 12)" fill="var(--sage)" stroke="var(--sage-ink)" stroke-width="1.500"/><g fill="#ffffff"><circle cx="36" cy="66" r="22"/><circle cx="60" cy="54" r="28"/><circle cx="84" cy="66" r="22"/><ellipse cx="60" cy="76" rx="44" ry="20"/></g><circle cx="42" cy="72" r="5" fill="var(--petal)"/><circle cx="78" cy="72" r="5" fill="var(--petal)"/>'+eyes+mouth+(m==="sleep"?'<text x="94" y="36" class="zz">z</text>':'')+'</svg>';
+  return '<svg viewBox="0 0 120 112" aria-hidden="true"><path d="M60 30V16" stroke="var(--sage-ink)" stroke-width="2.500" stroke-linecap="round" fill="none"/><ellipse cx="52" cy="14" rx="9" ry="5" transform="rotate(-25 52 14)" fill="var(--sage)" stroke="var(--sage-ink)" stroke-width="1.500"/><ellipse cx="68" cy="12" rx="9" ry="5" transform="rotate(25 68 12)" fill="var(--sage)" stroke="var(--sage-ink)" stroke-width="1.500"/><defs><radialGradient id="palshade" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset=".65" stop-color="#f3f2fd"/><stop offset="1" stop-color="#d9d6f3"/></radialGradient></defs><g fill="url(#palshade)"><circle cx="36" cy="66" r="22"/><circle cx="60" cy="54" r="28"/><circle cx="84" cy="66" r="22"/><ellipse cx="60" cy="76" rx="44" ry="20"/></g><circle cx="42" cy="72" r="5" fill="var(--petal)"/><circle cx="78" cy="72" r="5" fill="var(--petal)"/>'+eyes+mouth+(m==="sleep"?'<text x="94" y="36" class="zz">z</text>':'')+'</svg>';
 }
 function palLines(){
   var td=shift(0),ht=S.habits.length,hd=S.habits.filter(function(h){return h.log[td];}).length,a=[];

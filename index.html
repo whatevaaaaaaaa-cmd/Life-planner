@@ -272,6 +272,14 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 .tlang{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .tlang button{padding:8px 14px;min-height:40px;border-radius:999px;font-weight:600;font-size:14px;background:var(--surface2);color:var(--ink)}
 .tlang button[aria-current="true"]{background:var(--sky);color:var(--sky-ink);box-shadow:inset 0 0 0 2px var(--accent)}
+/* floating Puff */
+.hi[data-puff],.hello[data-puff]{padding-right:88px}
+section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
+.pal.puff{position:fixed;z-index:15;top:12px;right:max(8px,calc(50% - 268px),env(safe-area-inset-right,0px));width:80px;padding:0;background:none;transition:top .55s cubic-bezier(.3,1.25,.5,1)}
+.puffsay{position:fixed;z-index:16;top:22px;right:calc(max(8px,calc(50% - 268px),env(safe-area-inset-right,0px)) + 86px);max-width:min(300px,calc(100% - 120px));margin:0;
+  background:var(--surface);color:var(--ink);border-radius:22px 6px 22px 22px;padding:12px 16px;font-size:15px;line-height:1.4;box-shadow:var(--shadow);transition:top .55s cubic-bezier(.3,1.25,.5,1);animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.pal.puff,.puffsay{transition:none;animation:none}}
 /* welcome tour */
 .tour{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
 .tour .skip{align-self:flex-end;color:var(--muted);font-weight:600;font-size:14px;padding:8px 4px;min-height:40px}
@@ -290,6 +298,8 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 
 
 <div class="app" id="app"></div>
+<button type="button" class="pal puff" id="puff" data-act="pal"></button>
+<p class="puffsay" id="puffsay" aria-live="polite" hidden></p>
 <button class="fab" id="fab" type="button" hidden></button>
 <nav aria-label="Sections"><div id="tabs"></div></nav>
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
@@ -481,7 +491,7 @@ function wheel(sc){
 }
 function balance(){
   var w=S.wheel&&S.wheel.scores&&S.wheel.scores[AREAS[0][0]]?S.wheel:null;
-  var h='<section class="sec"><div class="sechead"><h2>'+T("Life balance")+'</h2>'+(w?'<span class="tag">'+esc(T("Checked {d}",{d:nice(w.date)}))+'</span>':'')+'</div><div class="card bal">'+wheel(w&&w.scores);
+  var h='<section class="sec" data-puff="balance"><div class="sechead"><h2>'+T("Life balance")+'</h2>'+(w?'<span class="tag">'+esc(T("Checked {d}",{d:nice(w.date)}))+'</span>':'')+'</div><div class="card bal">'+wheel(w&&w.scores);
   if(w){
     var sum=0,low=AREAS[0];AREAS.forEach(function(a){var v=+w.scores[a[0]]||0;sum+=v;if(v<(+w.scores[low[0]]||0))low=a;});
     h+='<p><b class="num">'+T("{x} of 10",{x:(sum/AREAS.length).toFixed(1)})+'</b> '+T("across your six areas.")+'</p><p class="muted small">'+esc(T("{area} feels lowest right now. One small habit there can lift the whole wheel.",{area:T(low[1])}))+'</p><div class="acts"><button type="button" class="btn soft" data-act="open" data-kind="balance">'+T("Check in again")+'</button><button type="button" class="btn" data-act="open" data-kind="habit">'+T("Plant a habit")+'</button></div>';
@@ -539,17 +549,17 @@ function vToday(){
   var mk=td.slice(0,7),mt=totals(S.money.filter(function(m){return m.date.slice(0,7)===mk;})),all=totals(S.money);
   var wrote=S.journal.some(function(j){return j.date===td;});
   var h='<div class="top"><div class="brand"><span class="k-sage"><span class="orb mini">'+ic("sprout",18)+'</span></span>Life Planner</div><div class="topr"><button type="button" class="langbtn" data-act="open" data-kind="lang" aria-label="Language, Taal, Ulimi">'+ic("globe",20)+'<b>'+LANG.toUpperCase()+'</b></button><button type="button" class="iconbtn" aria-label="'+T("Settings")+'" data-act="open" data-kind="settings">'+ic("gear")+'</button></div></div>'+banner()+
-  '<div class="hi"><div class="hello"><p class="muted small">'+esc(new Date().toLocaleDateString(loc(),{weekday:"long",day:"numeric",month:"long"}))+'</p><h1>'+g+(S.name?", "+esc(S.name):"")+'</h1><p class="line">'+T(LINES[doy%LINES.length])+'</p></div><button type="button" class="pal" data-act="pal" aria-label="'+T("Puff, your little cloud friend. Tap to say hello")+'">'+pal(ht&&hd===ht?"joy":(hr>=21||hr<5)?"sleep":"calm")+'</button></div><p class="bubble" id="pal-say" aria-live="polite">'+esc(palMsg||T("Hello, I am Puff. Tap me whenever you like."))+'</p>';
+  '<div class="hi" data-puff="hello"><div class="hello"><p class="muted small">'+esc(new Date().toLocaleDateString(loc(),{weekday:"long",day:"numeric",month:"long"}))+'</p><h1>'+g+(S.name?", "+esc(S.name):"")+'</h1><p class="line">'+T(LINES[doy%LINES.length])+'</p></div></div>';
   if(S.examples)h+='<div class="note"><span>'+T("These are example entries, so you can see how a day looks.")+'</span><div><button type="button" class="btn sm" data-act="fresh">'+T("Start fresh")+'</button><button type="button" class="btn sm soft" data-act="keep">'+T("Keep them")+'</button></div></div>';
   h+=balance();
   var sc=S.wheel&&S.wheel.scores||{},dn=S.tasks.length-open.length,go='<span class="go">'+ic("right")+'</span>';
-  h+='<section class="sec"><h2>'+T("Your areas")+'</h2><div class="kards">'+AREAS.map(function(a,i){var n=S.habits.filter(function(x){return String(x.area)===String(i);}).length,v=+sc[a[0]]||0;return kard(a[2],a[4],esc(T(a[1])),T(n===1?"{n} habit":"{n} habits",{n:n})+(v?" · "+T("{x} of 10",{x:v}):""),ring(v*10),'data-act="open" data-kind="habit" data-id="'+i+'"');}).join("")+'</div></section>';
-  h+='<section class="sec"><h2>'+T("Your day")+'</h2><div class="kards">'+kard("sky","check",T("Tasks"),T("{n} open",{n:open.length}),ring(S.tasks.length?dn/S.tasks.length*100:0),'data-act="tab" data-id="tasks"')+kard("sage","sprout",T("Habits"),T("{a} of {b} today",{a:hd,b:ht}),ring(ht?hd/ht*100:0),'data-act="tab" data-id="habits"')+kard("petal","book",T("Journal"),T(wrote?"Written today":"Not yet today"),go,'data-act="tab" data-id="journal"')+kard("mist","coin",T("Money"),T(S.money.length===1?"{n} entry":"{n} entries",{n:S.money.length}),go,'data-act="tab" data-id="money"')+'</div></section>';
+  h+='<section class="sec" data-puff="areas"><h2>'+T("Your areas")+'</h2><div class="kards">'+AREAS.map(function(a,i){var n=S.habits.filter(function(x){return String(x.area)===String(i);}).length,v=+sc[a[0]]||0;return kard(a[2],a[4],esc(T(a[1])),T(n===1?"{n} habit":"{n} habits",{n:n})+(v?" · "+T("{x} of 10",{x:v}):""),ring(v*10),'data-act="open" data-kind="habit" data-id="'+i+'"');}).join("")+'</div></section>';
+  h+='<section class="sec" data-puff="day"><h2>'+T("Your day")+'</h2><div class="kards">'+kard("sky","check",T("Tasks"),T("{n} open",{n:open.length}),ring(S.tasks.length?dn/S.tasks.length*100:0),'data-act="tab" data-id="tasks"')+kard("sage","sprout",T("Habits"),T("{a} of {b} today",{a:hd,b:ht}),ring(ht?hd/ht*100:0),'data-act="tab" data-id="habits"')+kard("petal","book",T("Journal"),T(wrote?"Written today":"Not yet today"),go,'data-act="tab" data-id="journal"')+kard("mist","coin",T("Money"),T(S.money.length===1?"{n} entry":"{n} entries",{n:S.money.length}),go,'data-act="tab" data-id="money"')+'</div></section>';
   h+='<div class="quick"><button type="button" class="k-sky" data-act="open" data-kind="task"><span class="orb">'+ic("check",30)+'</span>'+T("Task")+'</button><button type="button" class="k-sage" data-act="open" data-kind="habit"><span class="orb">'+ic("sprout",30)+'</span>'+T("Habit")+'</button><button type="button" class="k-petal" data-act="open" data-kind="journal"><span class="orb">'+ic("book",30)+'</span>'+T("Entry")+'</button><button type="button" class="k-mist" data-act="open" data-kind="money"><span class="orb">'+ic("coin",30)+'</span>'+T("Amount")+'</button></div>';
-  h+='<section class="sec"><div class="sechead"><h2>'+T("Habits to tend")+'</h2><button type="button" class="link" data-act="tab" data-id="habits">'+T("See the week")+'</button></div>';
+  h+='<section class="sec" data-puff="tend"><div class="sechead"><h2>'+T("Habits to tend")+'</h2><button type="button" class="link" data-act="tab" data-id="habits">'+T("See the week")+'</button></div>';
   if(ht){h+='<div class="bar" aria-hidden="true"><i style="width:'+(hd/ht*100)+'%"></i></div><div class="chips">'+S.habits.map(function(x){var on=!!x.log[td];return '<button type="button" class="chip" aria-pressed="'+on+'" data-act="habit" data-id="'+x.id+'" data-day="'+td+'"><span class="dot f-'+HCOL[x.icon]+'">'+ic(on?"check":x.icon,16)+'</span>'+esc(x.name)+'</button>';}).join("")+'</div>';}
   else h+=empty(T("No habits planted yet"),T("Start with one small thing you can do most days."));
-  h+='</section><section class="sec"><div class="sechead"><h2>'+T("For today")+'</h2><button type="button" class="link" data-act="tab" data-id="tasks">'+T("All tasks")+'</button></div>';
+  h+='</section><section class="sec" data-puff="fortoday"><div class="sechead"><h2>'+T("For today")+'</h2><button type="button" class="link" data-act="tab" data-id="tasks">'+T("All tasks")+'</button></div>';
   h+=focus.length?'<div class="card rows">'+focus.map(taskRow).join("")+'</div>':empty(T("Nothing waiting"),T("Enjoy the open space, or add something gentle."));
   h+='</section>';
   return h;
@@ -557,14 +567,14 @@ function vToday(){
 function vTasks(){
   var open=S.tasks.filter(function(t){return !t.done;}).sort(function(a,b){return (a.due||"9999").localeCompare(b.due||"9999");});
   var done=S.tasks.filter(function(t){return t.done;});
-  var h='<div class="hello"><p class="muted small">'+esc(new Date().toLocaleDateString(loc(),{weekday:"long",day:"numeric",month:"long",year:"numeric"}))+'</p><h1>'+T("Tasks")+'</h1><p class="muted">'+T("One thing at a time is enough.")+'</p></div>';
+  var h='<div class="hello" data-puff="tasks"><p class="muted small">'+esc(new Date().toLocaleDateString(loc(),{weekday:"long",day:"numeric",month:"long",year:"numeric"}))+'</p><h1>'+T("Tasks")+'</h1><p class="muted">'+T("One thing at a time is enough.")+'</p></div>';
   h+=open.length?'<div class="card rows">'+open.map(taskRow).join("")+'</div>':empty(T("All clear"),T("Nothing is asking for you right now."));
-  if(done.length)h+='<section class="sec"><div class="sechead"><h2>'+T("Done")+'</h2><button type="button" class="link" data-act="cleardone">'+T("Clear done")+'</button></div><div class="card rows">'+done.map(taskRow).join("")+'</div></section>';
+  if(done.length)h+='<section class="sec" data-puff="done"><div class="sechead"><h2>'+T("Done")+'</h2><button type="button" class="link" data-act="cleardone">'+T("Clear done")+'</button></div><div class="card rows">'+done.map(taskRow).join("")+'</div></section>';
   return h;
 }
 function vHabits(){
   var wk=weekKeys(),td=shift(0);
-  var h='<h1>'+T("Habits")+'</h1><p class="muted">'+T("Small and steady. A missed day is only a day.")+'</p>';
+  var h='<div class="hello" data-puff="habits"><h1>'+T("Habits")+'</h1><p class="muted">'+T("Small and steady. A missed day is only a day.")+'</p></div>';
   if(!S.habits.length)return h+empty(T("No habits planted yet"),T("Add one small thing you would like to return to."));
   h+='<div class="week head">'+wk.map(function(k){var d=parse(k);return '<div'+(k===td?' class="now"':'')+'>'+d.toLocaleDateString(loc(),{weekday:"short"}).slice(0,2)+'<b class="num">'+d.getDate()+'</b></div>';}).join("")+'</div>';
   PARTS.forEach(function(p){
@@ -578,14 +588,14 @@ function vHabits(){
 }
 function vJournal(){
   var list=S.journal.slice().sort(function(a,b){return b.date.localeCompare(a.date);});
-  var h='<h1>'+T("Journal")+'</h1><p class="muted">'+T("A few honest lines. Nobody else reads this.")+'</p>';
+  var h='<div class="hello" data-puff="journal"><h1>'+T("Journal")+'</h1><p class="muted">'+T("A few honest lines. Nobody else reads this.")+'</p></div>';
   if(!list.length)return h+empty(T("A blank page"),T("Write whatever today's weather was like inside."));
   var mood={};MOODS.forEach(function(m){mood[m[0]]=T(m[1]);});
   return h+'<div class="card rows">'+list.map(function(j){return '<button type="button" class="entry" data-act="open" data-kind="journal" data-id="'+j.id+'"><span class="badge f-mist">'+ic(j.mood||"fair")+'</span><span class="grow" style="min-width:0;flex:1"><span class="tag">'+esc(nice(j.date))+' · '+esc(mood[j.mood]||"")+'</span><p class="clamp">'+esc(j.text)+'</p></span></button>';}).join("")+'</div>';
 }
 function vMoney(){
   var mk=shift(0).slice(0,7),month=S.money.filter(function(m){return m.date.slice(0,7)===mk;}),mt=totals(month),all=totals(S.money);
-  var h='<h1>'+T("Money")+'</h1><p class="muted">'+T("Knowing where it flows makes it calmer.")+'</p>';
+  var h='<div class="hello" data-puff="money"><h1>'+T("Money")+'</h1><p class="muted">'+T("Knowing where it flows makes it calmer.")+'</p></div>';
   h+='<div class="card sum"><div><span class="small muted">'+T("Balance")+'</span><div class="big num">'+money(all.i-all.o)+'</div></div><div class="io"><div class="f-sage"><span class="small">'+T("In this month")+'</span><b class="num">'+money(mt.i)+'</b></div><div class="f-petal"><span class="small">'+T("Out this month")+'</span><b class="num">'+money(mt.o)+'</b></div></div>';
   var by={},max=0;month.forEach(function(m){if(m.type==="out"){by[m.cat]=(by[m.cat]||0)+ +m.amount;}});
   var cats=Object.keys(by).sort(function(a,b){return by[b]-by[a];});cats.forEach(function(c){if(by[c]>max)max=by[c];});
@@ -593,13 +603,15 @@ function vMoney(){
   h+='</div>';
   var list=S.money.slice().sort(function(a,b){return b.date.localeCompare(a.date);});
   if(!list.length)return h+empty(T("Nothing noted yet"),T("Add what came in or went out today."));
-  return h+'<section class="sec"><h2>'+T("Entries")+'</h2><div class="card rows">'+list.map(function(m){return '<div class="row"><div class="grow"><div class="t">'+esc(m.note||T(m.cat))+'</div><span class="tag">'+esc(nice(m.date))+' · '+esc(T(m.cat))+'</span></div><span class="amt num'+(m.type==="in"?" in":"")+'">'+(m.type==="in"?"+ ":"− ")+money(m.amount)+'</span><button type="button" class="del" aria-label="'+T("Remove entry: ")+esc(m.note||T(m.cat))+'" data-act="rm" data-kind="money" data-id="'+m.id+'">'+ic("x",18)+'</button></div>';}).join("")+'</div></section>';
+  return h+'<section class="sec" data-puff="entries"><h2>'+T("Entries")+'</h2><div class="card rows">'+list.map(function(m){return '<div class="row"><div class="grow"><div class="t">'+esc(m.note||T(m.cat))+'</div><span class="tag">'+esc(nice(m.date))+' · '+esc(T(m.cat))+'</span></div><span class="amt num'+(m.type==="in"?" in":"")+'">'+(m.type==="in"?"+ ":"− ")+money(m.amount)+'</span><button type="button" class="del" aria-label="'+T("Remove entry: ")+esc(m.note||T(m.cat))+'" data-act="rm" data-kind="money" data-id="'+m.id+'">'+ic("x",18)+'</button></div>';}).join("")+'</div></section>';
 }
 var VIEWS={today:vToday,tasks:vTasks,habits:vHabits,journal:vJournal,money:vMoney};
 var FAB={tasks:["task","Add task"],habits:["habit","Add habit"],journal:["journal","Write"],money:["money","Add amount"]};
 function render(){
   $("app").innerHTML=VIEWS[tab]();
   $("tabs").innerHTML=TABS.map(function(t){return '<button type="button" data-act="tab" data-id="'+t[0]+'"'+(t[0]===tab?' aria-current="page"':'')+'><span class="nb k-'+t[3]+'">'+ic(t[2],20)+'</span>'+T(t[1])+'</button>';}).join("");
+  var pf=$("puff");if(pf){pf.innerHTML=pal(puffMood());pf.setAttribute("aria-label",T("Puff, your little cloud friend. Tap to say hello"));}
+  hideSay();queuePuff();
   var f=FAB[tab],b=$("fab");b.hidden=!f;if(f){b.innerHTML=ic("plus")+T(f[1]);b.dataset.act="open";b.dataset.kind=f[0];}
 }
 function go(t){if(!VIEWS[t])t="today";tab=t;render();window.scrollTo(0,0);try{if(location.hash.slice(1)!==t)location.hash=t;}catch(e){}}
@@ -628,6 +640,42 @@ function tourHtml(){
   return '<div class="tour">'+(last?'<span style="min-height:40px"></span>':'<button type="button" class="skip" data-act="tdone">'+T("Skip")+'</button>')+'<div class="art" aria-hidden="true">'+art+'</div><h2>'+T(t[1])+'</h2><p>'+T(t[2])+'</p>'+(tourStep===0?'<div class="tlang">'+LANGS.map(function(l){return '<button type="button" data-act="setlang" data-id="'+l[0]+'" aria-current="'+(LANG===l[0])+'" lang="'+l[0]+'">'+l[1]+'</button>';}).join("")+'</div>':'')+'<div class="dots" aria-label="'+T("Step {a} of {b}",{a:tourStep+1,b:TOUR.length})+'">'+TOUR.map(function(x,i){return '<i class="'+(i===tourStep?"on":"")+'"></i>';}).join("")+'</div><div class="acts">'+
    (last?'<button type="button" class="btn soft" data-act="tdone">'+T("Look around first")+'</button><button type="button" class="btn" data-act="tstart">'+T("Start my wheel")+'</button>'
         :(tourStep?'<button type="button" class="btn soft" data-act="tback">'+T("Back")+'</button>':'')+'<button type="button" class="btn" data-act="tnext">'+T(tourStep?"Next":"Show me around")+'</button>')+'</div></div>';
+}
+/* Puff floats down the page and rests beside each section */
+var puffKey="hello",puffTimer=null,puffRaf=0,puffTurn={};
+function puffMood(){var td=shift(0),ht=S.habits.length,hd=S.habits.filter(function(h){return h.log[td];}).length,hr=new Date().getHours();return ht&&hd===ht?"joy":(hr>=21||hr<5)?"sleep":"calm";}
+function hideSay(){var x=$("puffsay");if(x)x.hidden=true;clearTimeout(puffTimer);}
+function puffSay(msg){var x=$("puffsay");x.textContent=msg;x.style.top=((parseFloat($("puff").style.top)||12)+10)+"px";x.hidden=false;clearTimeout(puffTimer);puffTimer=setTimeout(hideSay,8000);}
+function placePuff(){
+  puffRaf=0;var el=$("puff");if(!el)return;
+  var secs=[].slice.call(document.querySelectorAll("#app [data-puff]"));if(!secs.length){el.hidden=true;hideSay();return;}el.hidden=false;
+  var lim=12,H=window.innerHeight,pick=null,top=lim,i,r;
+  for(i=0;i<secs.length;i++){r=secs[i].getBoundingClientRect();if(r.top>=lim&&r.top<=H-230){pick=secs[i];top=r.top-8;break;}}
+  if(!pick){for(i=secs.length-1;i>=0;i--){if(secs[i].getBoundingClientRect().top<lim){pick=secs[i];break;}}pick=pick||secs[0];top=lim;}
+  top=Math.max(lim,Math.min(top,H-210));el.style.top=top+"px";
+  var k=pick.getAttribute("data-puff");if(k!==puffKey){puffKey=k;hideSay();}
+  var x=$("puffsay");if(!x.hidden)x.style.top=(top+10)+"px";
+}
+function queuePuff(){if(!puffRaf)puffRaf=requestAnimationFrame(placePuff);}
+function puffTips(k){
+  var w=S.wheel&&S.wheel.scores&&S.wheel.scores[AREAS[0][0]]?S.wheel:null,low=null,td=shift(0);
+  if(w){low=AREAS[0];AREAS.forEach(function(a){if((+w.scores[a[0]]||0)<(+w.scores[low[0]]||0))low=a;});}
+  var open=S.tasks.filter(function(t){return !t.done&&(!t.due||t.due<=td);}).length;
+  var tips={
+    hello:palLines(),
+    balance:w?[T("{area} is your lowest area. Try one tiny habit there this week.",{area:T(low[1])}),T("Check in again each week and watch your wheel change."),T("Every area moves at its own pace. That is how balance works.")]:[T("Tap Start my balance wheel. It only takes a minute."),T("There are no wrong scores. Just notice how each area feels today.")],
+    areas:[T("Tap an area to see habit ideas made for it."),T("Start with the area that feels thinnest. Small care goes far there."),T("The ring shows your latest wheel score for each area.")],
+    day:[T("Tap any card to jump straight to that section."),T("No need to fill every ring today. Progress is enough."),T("Your journal is a good place to end the day.")],
+    tend:S.habits.length?[T("Tap a habit once you have done it today."),T("Keep habits tiny. Two minutes is a fine start."),T("If a habit feels heavy, make it smaller rather than skipping it.")]:[T("Plant one small habit to begin. You can add more later.")],
+    fortoday:open?[T("Tick a task when it is done. Small wins count."),T("Pick the easiest task first to get moving."),T("If a task keeps waiting, break it into a smaller first step.")]:[T("Nothing waiting. A short walk or a glass of water would be lovely."),T("A clear list is a good moment to rest.")],
+    tasks:[T("Give a task a due date and it appears on Today when it is time."),T("Break a big task into small steps you can finish in one go."),T("Tasks without a date wait quietly at the bottom.")],
+    done:[T("Clear done tasks to keep your list light."),T("Look how much you have finished. Well done.")],
+    habits:[T("Tap a day's circle to mark a habit you kept. Missed days are fine."),T("Morning, afternoon and evening groups help habits fit into your day."),T("A streak is nice, but coming back after a gap matters more.")],
+    journal:[T("Not sure what to write? Name one thing that went well."),T("Choose the weather inside first. The words often follow."),T("Tap an old entry to read it again or make changes.")],
+    money:[T("Note spending on the same day, while you still remember."),T("Look at your biggest category. Does it feel right to you?"),T("Small, regular savings add up quietly.")],
+    entries:[T("Tap the cross to remove an entry added by mistake."),T("Add a short note so you remember what each amount was for.")]
+  };
+  return tips[k]||palLines();
 }
 /* sheets */
 function head(t){return '<div class="top"><h2>'+t+'</h2><button type="button" class="iconbtn" aria-label="'+T("Close")+'" data-act="close">'+ic("x")+'</button></div>';}
@@ -696,7 +744,7 @@ document.addEventListener("click",function(e){
     if(x){$("habit-name").value=T(x[0]);var r1=$("habit-icon-"+x[1]);if(r1)r1.checked=true;var r2=$("habit-part-"+x[2]);if(r2)r2.checked=true;}
     $("habit-ddlist").hidden=true;$("habit-dd").setAttribute("aria-expanded","false");
   }
-  else if(a==="pal"){var L=palLines();palMsg=L[palTurn++%L.length];$("pal-say").textContent=palMsg;b.classList.remove("hop");void b.offsetWidth;b.classList.add("hop");}
+  else if(a==="pal"){var L=puffTips(puffKey),pn=puffTurn[puffKey]||0;puffTurn[puffKey]=pn+1;puffSay(L[pn%L.length]);b.classList.remove("hop");void b.offsetWidth;b.classList.add("hop");}
   else if(a==="wipe"){
     if(!armed){armed=true;b.textContent=T("Tap again to clear");return;}
     keepUndo();var c=S.currency;S=blank();S.currency=c;save();closeSheet();render();toast(T("Everything cleared."),true);
@@ -743,6 +791,8 @@ window.addEventListener("hashchange",function(){var t=location.hash.slice(1);if(
 var h0=location.hash.slice(1);if(VIEWS[h0])tab=h0;
 render();
 connect();
+window.addEventListener("scroll",queuePuff,{passive:true});window.addEventListener("resize",queuePuff);
+setTimeout(function(){if(tab==="today"&&$("veil").hidden)puffSay(T("Hello, I am Puff. Tap me whenever you like."));},900);
 var seenTour=false;try{seenTour=!!localStorage.getItem(KEY+"-tour");}catch(e){seenTour=true;}
 if(!seenTour)setTimeout(function(){if($("veil").hidden)openSheet("tour");},400);
 })();

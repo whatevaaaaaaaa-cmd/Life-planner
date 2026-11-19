@@ -305,6 +305,9 @@ section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
 .advice{padding:14px 18px}
 .advice summary{font-weight:700;cursor:pointer;color:var(--ink)}
 .advice ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55}
+.navtip{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(104px + env(safe-area-inset-bottom,0px));width:max-content;max-width:min(300px,calc(100vw - 32px));background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:16px;font-size:14px;line-height:1.4;text-align:center;box-shadow:var(--shadow);z-index:30;pointer-events:none;margin:0}
+.navtip[hidden]{display:none}
+#tabs button{-webkit-touch-callout:none;user-select:none}
 </style>
 </head>
 <body>
@@ -314,6 +317,7 @@ section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
 <button type="button" class="pal puff" id="puff" data-act="pal"></button>
 <p class="puffsay" id="puffsay" aria-live="polite" hidden></p>
 <button class="fab" id="fab" type="button" hidden></button>
+<p class="navtip" id="navtip" role="status" hidden></p>
 <nav aria-label="Sections"><div id="tabs"></div></nav>
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -657,6 +661,13 @@ function goalsToday(){
   return '<section class="sec" data-puff="goalstoday"><div class="sechead"><h2>'+T("Goal steps")+'</h2><button type="button" class="link" data-act="tab" data-id="goals">'+T("All goals")+'</button></div><div class="card rows">'+list.map(function(x){return gRow(x.g,x.s,T(x.s.horizon==="day"?"Today":"This week")+" · "+x.g.title);}).join("")+'</div></section>';
 }
 var VIEWS={today:vToday,tasks:vTasks,habits:vHabits,goals:vGoals,journal:vJournal,money:vMoney};
+function tdesc(id){
+  var d={today:"Your day at a glance: greetings, areas, goal steps, tasks and habits.",tasks:"Things to do. Add a task, tick it off, or give it a date.",habits:"Small daily habits. Tap the days you kept them.",goals:"Set a bigger goal and break it into yearly, monthly, weekly and daily steps.",journal:"Write a few honest lines about your day and how you feel.",money:"Note what came in and what went out, sorted by category."};
+  return T(d[id]||"");
+}
+var pressTimer=null,pressFired=false,tipTimer=null;
+function navTip(id){var x=$("navtip");if(!x)return;x.textContent=tdesc(id);x.hidden=false;clearTimeout(tipTimer);}
+function navTipHide(){clearTimeout(tipTimer);tipTimer=setTimeout(function(){var x=$("navtip");if(x)x.hidden=true;},1800);}
 var FAB={tasks:["task","Add task"],habits:["habit","Add habit"],journal:["journal","Write"],money:["money","Add amount"],goals:["goal","Plant a goal"]};
 function render(){if(!Array.isArray(S.goals))S.goals=[];
   $("app").innerHTML=VIEWS[tab]();
@@ -769,6 +780,7 @@ function find(kind,id){return S[kind].filter(function(x){return x.id===id;})[0];
 document.addEventListener("click",function(e){
   if(e.target===$("veil")){closeSheet();return;}
   var b=e.target.closest("[data-act]");if(!b)return;
+  if(pressFired&&b.closest("#tabs")){pressFired=false;return;}
   var a=b.dataset.act,id=b.dataset.id;
   if(a==="tab")go(id);
   else if(a==="open")openSheet(b.dataset.kind,id);
@@ -851,6 +863,15 @@ window.addEventListener("hashchange",function(){var t=location.hash.slice(1);if(
 var h0=location.hash.slice(1);if(VIEWS[h0])tab=h0;
 render();
 connect();
+document.addEventListener("pointerdown",function(e){
+  var b=e.target.closest?e.target.closest("#tabs button"):null;if(!b)return;
+  pressFired=false;clearTimeout(pressTimer);
+  pressTimer=setTimeout(function(){pressFired=true;navTip(b.dataset.id);},450);
+});
+function endPress(){clearTimeout(pressTimer);if(pressFired)navTipHide();}
+document.addEventListener("pointerup",endPress);
+document.addEventListener("pointercancel",endPress);
+document.addEventListener("contextmenu",function(e){if(e.target.closest&&e.target.closest("#tabs"))e.preventDefault();});
 window.addEventListener("scroll",queuePuff,{passive:true});window.addEventListener("resize",queuePuff);
 setTimeout(function(){if(tab==="today"&&$("veil").hidden)puffSay(T("Hello, I am Puff. Tap me whenever you like."));},900);
 var seenTour=false;try{seenTour=!!localStorage.getItem(KEY+"-tour");}catch(e){seenTour=true;}

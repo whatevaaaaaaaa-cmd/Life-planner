@@ -365,6 +365,9 @@ section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
 (function(){
 "use strict";
 var KEY="life-planner";
+// Push reminders: fill these in after deploying reminder-worker (see reminder-worker/README.md).
+var REMIND_API="";
+var VAPID_PUB="";
 var TABS=[["today","Today","hill","sky"],["tasks","Tasks","check","sun"],["habits","Habits","sprout","sage"],["goals","Goals","flag","rose"],["journal","Journal","book","petal"],["money","Money","coin","mist"]];
 var I={
  hill:'<circle cx="17" cy="7" r="2.5"/><path d="M2 19l6-9 4 6 3-4 7 7z"/>',
@@ -754,8 +757,34 @@ function goalsToday(){
   list.sort(function(a,b){return (isDone(a.s)?1:0)-(isDone(b.s)?1:0);});
   return '<section class="sec" data-puff="goalstoday"><div class="sechead"><h2>'+T("Goal steps")+'</h2><button type="button" class="link" data-act="tab" data-id="goals">'+T("All goals")+'</button></div><div class="card rows">'+list.map(function(x){return gRow(x.g,x.s,T(x.s.horizon==="day"?"Today":"This week")+" · "+x.g.title);}).join("")+'</div></section>';
 }
+// Lets a push from the reminder service stand in for the local reminder, so the person never gets two.
+function b64uBytes(s){var p=s.replace(/-/g,"+").replace(/_/g,"/");p+="====".slice(0,(4-p.length%4)%4);var raw=atob(p),out=new Uint8Array(raw.length);for(var i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out;}
+function pushSubscribe(time){
+  if(!REMIND_API||!VAPID_PUB||!("serviceWorker" in navigator)||!("PushManager" in window))return Promise.resolve(false);
+  return navigator.serviceWorker.ready.then(function(reg){
+    return reg.pushManager.getSubscription().then(function(sub){
+      return sub||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uBytes(VAPID_PUB)});
+    });
+  }).then(function(sub){
+    return fetch(REMIND_API+"/subscribe",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({subscription:sub.toJSON(),time:time,offset:-new Date().getTimezoneOffset()})});
+  }).then(function(r){
+    if(!r.ok)return false;
+    try{localStorage.setItem(KEY+"-push","1");}catch(e){}
+    return true;
+  }).catch(function(){return false;});
+}
+function pushUnsubscribe(){
+  try{localStorage.removeItem(KEY+"-push");}catch(e){}
+  if(!REMIND_API||!("serviceWorker" in navigator))return Promise.resolve();
+  return navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription();}).then(function(sub){
+    if(!sub)return;
+    var ep=sub.endpoint;
+    return sub.unsubscribe().then(function(){return fetch(REMIND_API+"/unsubscribe",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({endpoint:ep})});});
+  }).catch(function(){});
+}
 function remindCheck(){
   if(!S.remind||!("Notification" in window)||Notification.permission!=="granted")return;
+  try{if(localStorage.getItem(KEY+"-push"))return;}catch(e){}
   var now=new Date(),p=S.remind.split(":"),due=new Date(now.getFullYear(),now.getMonth(),now.getDate(),+p[0],+p[1]||0),key=KEY+"-remind-"+shift(0);
   try{if(now<due||localStorage.getItem(key))return;localStorage.setItem(key,"1");}catch(e){return;}
   var body=T("A few minutes for your goals, habits or journal today?");
@@ -974,7 +1003,10 @@ document.addEventListener("submit",function(e){
   else if(k==="step"){var sg2=find("goals",f.dataset.goal);if(!sg2||!v("text"))return;sg2.steps.push({id:uid(),text:v("text"),horizon:v("h")||"day",done:false,period:""});toast(T("Step added."));}
   else if(k==="stepedit"){var se=find("goals",f.dataset.goal),ste=se?se.steps.filter(function(x){return x.id===f.dataset.id;})[0]:null;if(!ste||!v("text"))return;var nh=v("h")||ste.horizon;if(nh!==ste.horizon){ste.done=false;ste.period="";}ste.text=v("text");ste.horizon=nh;toast(T("Step saved."));}
   else if(k==="budgets"){CATS.out.forEach(function(c){var x=parseFloat(f.elements["b_"+c].value);if(x>0)S.budgets[c]=x;else delete S.budgets[c];});toast(T("Budgets saved."));}
-  else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";S.remind=v("remind");if(S.remind&&"Notification" in window&&Notification.permission==="default")Notification.requestPermission().then(remindCheck);var nl=v("lang");if(nl&&nl!==LANG)setLang(nl);toast(T("Saved."));}
+  else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";S.remind=v("remind");
+  if(!S.remind)pushUnsubscribe();
+  else if("Notification" in window&&Notification.permission==="default")Notification.requestPermission().then(function(p){if(p==="granted")pushSubscribe(S.remind);remindCheck();});
+  else if("Notification" in window&&Notification.permission==="granted")pushSubscribe(S.remind);var nl=v("lang");if(nl&&nl!==LANG)setLang(nl);toast(T("Saved."));}
   save();closeSheet();render();
 });
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("veil").hidden)closeSheet();});
@@ -996,6 +1028,7 @@ document.addEventListener("click",function(e){if(pressFired){pressFired=false;e.
 window.addEventListener("scroll",queuePuff,{passive:true});window.addEventListener("resize",queuePuff);
 setTimeout(function(){if(tab==="today"&&$("veil").hidden)puffSay(T("Hello, I am Puff. Tap me whenever you like."));},900);
 setInterval(remindCheck,300000);document.addEventListener("visibilitychange",function(){if(!document.hidden)remindCheck();});remindCheck();
+if(S.remind&&"Notification" in window&&Notification.permission==="granted")pushSubscribe(S.remind);
 var seenTour=false;try{seenTour=!!localStorage.getItem(KEY+"-tour");}catch(e){seenTour=true;}
 if(!seenTour)setTimeout(function(){if($("veil").hidden)openSheet("tour");},400);
 })();

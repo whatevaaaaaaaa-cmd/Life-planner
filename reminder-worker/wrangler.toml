@@ -1,0 +1,14 @@
+name = "life-planner-reminders"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[[kv_namespaces]]
+binding = "SUBS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+[vars]
+VAPID_SUBJECT = "mailto:you@example.com"
+VAPID_PUBLIC_KEY = "REPLACE_WITH_PUBLIC_KEY"

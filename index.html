@@ -347,6 +347,14 @@ section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
 .pick span.gm svg{width:38px;height:38px;padding:7px;box-sizing:border-box;border-radius:50%;background:var(--k);color:#ffffff;stroke-width:2.4;filter:drop-shadow(0 1.5px 1px rgba(20,20,60,.4));box-shadow:inset 0 -4px 7px rgba(20,20,60,.16),inset 0 3px 5px rgba(255,255,255,.6)}
 .pick span.gm.k-sun svg{color:#5a3e00}
 #tabs button{-webkit-touch-callout:none;user-select:none}
+/* Neon buttons: a soft pastel glow, brighter on hover and focus, with a gentle press */
+.btn,.fab,.iconbtn{--glow:var(--accent);transition:transform .12s ease,filter .25s ease;
+  filter:drop-shadow(0 0 3px color-mix(in srgb,var(--glow) 55%,transparent)) drop-shadow(0 0 10px color-mix(in srgb,var(--glow) 35%,transparent))}
+.btn.soft{--glow:var(--sky-pop)} .btn.warn{--glow:var(--petal-pop)}
+.btn:hover,.btn:focus-visible,.fab:hover,.fab:focus-visible,.iconbtn:hover,.iconbtn:focus-visible{
+  filter:drop-shadow(0 0 4px color-mix(in srgb,var(--glow) 85%,transparent)) drop-shadow(0 0 16px color-mix(in srgb,var(--glow) 60%,transparent))}
+.btn:active,.fab:active,.iconbtn:active{transform:scale(.96)}
+@media (prefers-reduced-motion: reduce){.btn,.fab,.iconbtn{transition:none}.btn:active,.fab:active,.iconbtn:active{transform:none}}
 </style>
 </head>
 <body>
@@ -790,6 +798,18 @@ function remindCheck(){
   var body=T("A few minutes for your goals, habits or journal today?");
   try{if(navigator.serviceWorker&&navigator.serviceWorker.ready){navigator.serviceWorker.ready.then(function(r){r.showNotification("Life Planner",{body:body,tag:"daily"});});}else{new Notification("Life Planner",{body:body});}}catch(e){}
 }
+// Soft click sound, made in the browser so no audio file is needed. Can be switched off in Settings.
+var AC=null;
+function clickSound(){
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended")AC.resume();
+    var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+    o.type="sine";o.frequency.setValueAtTime(1400,t);o.frequency.exponentialRampToValueAtTime(700,t+0.05);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.16,t+0.004);g.gain.exponentialRampToValueAtTime(0.0001,t+0.07);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+0.08);
+  }catch(e){}
+}
 var VIEWS={today:vToday,tasks:vTasks,habits:vHabits,goals:vGoals,journal:vJournal,money:vMoney};
 var HTIP={leaf:"Leaf: a steady habit that grows slowly",drop:"Drop: drink water and stay fresh",sun:"Sun: something bright to start the day",moon:"Moon: rest, wind down, sleep well",tree:"Tree: time outdoors in nature",wave:"Wave: breathe, stretch and let go",heart:"Heart: be kind to yourself",book:"Book: read or learn a little"};
 var MTIP={sun:"Clear: calm and easy",fair:"Bright: hopeful and light",cloud:"Cloudy: a little grey, quietly thinking",rain:"Rainy: tender or low, and that is okay",storm:"Stormy: heavy or overwhelmed"};
@@ -901,7 +921,7 @@ function openSheet(kind,id){
   if(kind==="settings"){
     armed=false;
     var where=T(sync==="account"?"Your planner is saved privately to your account, so it follows you between phones.":sync==="waiting"?"Your account storage has not answered yet. Changes are kept on this device for now.":"Your planner is saved on this device.");
-    h=head(T("Settings"))+'<form data-form="settings"><button type="button" class="btn soft" data-act="open" data-kind="tour">'+T("Show the welcome tour")+'</button><label>'+T("Your first name (optional)")+'<input type="text" id="set-name" name="name" maxlength="30" value="'+esc(S.name)+'" autocomplete="off"></label><label>'+T("Daily reminder time (optional)")+'<input type="time" id="set-remind" name="remind" value="'+esc(S.remind||"")+'"></label><label>'+T("Currency symbol")+'<input type="text" id="set-cur" name="currency" maxlength="4" required value="'+esc(S.currency)+'" autocomplete="off"></label>'+langPick()+'<p class="small muted">'+where+' '+T("Save a backup now and then, so you can restore it on a new phone.")+'</p><div class="acts"><button class="btn soft" type="button" data-act="csv">'+T("Export money (CSV)")+'</button><button class="btn soft" type="button" data-act="csvc">'+T("Export check-ins (CSV)")+'</button><button class="btn soft" type="button" data-act="backup">'+T("Save a backup")+'</button><label class="btn soft" style="position:relative;overflow:hidden;flex-direction:row;align-items:center;justify-content:center;color:var(--ink);font-size:16px;font-weight:600">'+T("Restore a backup")+'<input type="file" id="restore-file" class="filecover" accept="application/json,.json" aria-label="'+T("Choose a backup file")+'"></label></div><div class="acts"><button class="btn warn" type="button" id="wipe" data-act="wipe">'+T("Clear everything")+'</button><button class="btn" type="submit">'+T("Save")+'</button></div></form>';
+    h=head(T("Settings"))+'<form data-form="settings"><button type="button" class="btn soft" data-act="open" data-kind="tour">'+T("Show the welcome tour")+'</button><label>'+T("Your first name (optional)")+'<input type="text" id="set-name" name="name" maxlength="30" value="'+esc(S.name)+'" autocomplete="off"></label><label>'+T("Daily reminder time (optional)")+'<input type="time" id="set-remind" name="remind" value="'+esc(S.remind||"")+'"></label><label>'+T("Currency symbol")+'<input type="text" id="set-cur" name="currency" maxlength="4" required value="'+esc(S.currency)+'" autocomplete="off"></label>'+langPick()+'<label class="small" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:flex-start"><input type="checkbox" id="set-sound" name="sound"'+(S.sound===false?"":" checked")+' style="width:22px;height:22px;accent-color:var(--accent)"> '+T("Button click sounds")+'</label><p class="small muted">'+where+' '+T("Save a backup now and then, so you can restore it on a new phone.")+'</p><div class="acts"><button class="btn soft" type="button" data-act="csv">'+T("Export money (CSV)")+'</button><button class="btn soft" type="button" data-act="csvc">'+T("Export check-ins (CSV)")+'</button><button class="btn soft" type="button" data-act="backup">'+T("Save a backup")+'</button><label class="btn soft" style="position:relative;overflow:hidden;flex-direction:row;align-items:center;justify-content:center;color:var(--ink);font-size:16px;font-weight:600">'+T("Restore a backup")+'<input type="file" id="restore-file" class="filecover" accept="application/json,.json" aria-label="'+T("Choose a backup file")+'"></label></div><div class="acts"><button class="btn warn" type="button" id="wipe" data-act="wipe">'+T("Clear everything")+'</button><button class="btn" type="submit">'+T("Save")+'</button></div></form>';
   }
   $("sheet").innerHTML=h;$("veil").hidden=false;
   if(id&&(kind==="task"||kind==="habitedit"||kind==="goal"))editFill(kind,id);
@@ -1003,7 +1023,7 @@ document.addEventListener("submit",function(e){
   else if(k==="step"){var sg2=find("goals",f.dataset.goal);if(!sg2||!v("text"))return;sg2.steps.push({id:uid(),text:v("text"),horizon:v("h")||"day",done:false,period:""});toast(T("Step added."));}
   else if(k==="stepedit"){var se=find("goals",f.dataset.goal),ste=se?se.steps.filter(function(x){return x.id===f.dataset.id;})[0]:null;if(!ste||!v("text"))return;var nh=v("h")||ste.horizon;if(nh!==ste.horizon){ste.done=false;ste.period="";}ste.text=v("text");ste.horizon=nh;toast(T("Step saved."));}
   else if(k==="budgets"){CATS.out.forEach(function(c){var x=parseFloat(f.elements["b_"+c].value);if(x>0)S.budgets[c]=x;else delete S.budgets[c];});toast(T("Budgets saved."));}
-  else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";S.remind=v("remind");
+  else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";S.sound=!!f.elements.sound.checked;S.remind=v("remind");
   if(!S.remind)pushUnsubscribe();
   else if("Notification" in window&&Notification.permission==="default")Notification.requestPermission().then(function(p){if(p==="granted")pushSubscribe(S.remind);remindCheck();});
   else if("Notification" in window&&Notification.permission==="granted")pushSubscribe(S.remind);var nl=v("lang");if(nl&&nl!==LANG)setLang(nl);toast(T("Saved."));}
@@ -1024,7 +1044,8 @@ function endPress(){clearTimeout(pressTimer);if(pressFired)navTipHide();}
 document.addEventListener("pointerup",endPress);
 document.addEventListener("pointercancel",endPress);
 document.addEventListener("contextmenu",function(e){if(e.target.closest&&e.target.closest("[data-tip],#tabs"))e.preventDefault();});
-document.addEventListener("click",function(e){if(pressFired){pressFired=false;e.preventDefault();e.stopPropagation();}},true);
+document.addEventListener("click",function(e){var sb=e.target.closest&&e.target.closest("button,.btn");if(sb&&!pressFired&&S.sound!==false)clickSound();
+if(pressFired){pressFired=false;e.preventDefault();e.stopPropagation();}},true);
 window.addEventListener("scroll",queuePuff,{passive:true});window.addEventListener("resize",queuePuff);
 setTimeout(function(){if(tab==="today"&&$("veil").hidden)puffSay(T("Hello, I am Puff. Tap me whenever you like."));},900);
 setInterval(remindCheck,300000);document.addEventListener("visibilitychange",function(){if(!document.hidden)remindCheck();});remindCheck();

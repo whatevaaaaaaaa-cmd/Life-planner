@@ -314,6 +314,31 @@ section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
 .hist i.on{background:var(--accent)}
 .donetag{display:inline-block;margin-left:6px;padding:3px 10px;border-radius:999px;background:var(--sage);color:var(--sage-ink);font-size:12px;font-weight:700}
 .reflect{padding:16px;display:flex;flex-direction:column;gap:12px}
+.well{padding:16px;display:flex;flex-direction:column;gap:14px}
+.moodrow{display:flex;justify-content:space-between;gap:6px}
+.gmb{width:52px;height:52px;padding:0;border:0;cursor:pointer;display:grid;place-items:center;color:#ffffff}
+.gmb.k-sun{color:#5a3e00}
+.gmb[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:3px}
+.trend{display:flex;gap:5px;flex-wrap:wrap}
+.trend i{width:12px;height:12px;border-radius:50%;background:var(--surface2)}
+.trend i[class]{background:var(--k)}
+.water{display:flex;flex-direction:column;gap:8px}
+.waterhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.glasses{display:flex;gap:6px}
+.glass{flex:1;height:40px;border-radius:10px 10px 16px 16px;border:2px solid var(--line);background:var(--surface);cursor:pointer}
+.glass.on{background:var(--sky-pop);border-color:var(--sky-ink)}
+.breathe{padding:14px 16px;display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:var(--ink);cursor:pointer}
+.breathe small{display:block;color:var(--muted)}
+.breathe .go{margin-left:auto;color:var(--muted)}
+.breathe-stage{display:grid;place-items:center;height:200px}
+.bcircle{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff 0,var(--sky-pop) 60%,var(--sky) 100%);box-shadow:0 14px 30px -10px rgba(40,40,90,.35);transform:scale(1);transition:transform 5s ease-in-out}
+.bcircle.go{transform:scale(1.45)}
+.bcount{text-align:center;font-size:18px;margin:8px 0 12px}
+.money-left{padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.budgets{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.brow{display:grid;gap:4px}
+.brow.over .bar i{background:var(--petal-ink)}
+@media (prefers-reduced-motion: reduce){.bcircle{transition:none}}
 .pick span.gl{width:56px;height:56px;min-width:0;padding:0;border-radius:50%;background:var(--k);color:#ffffff;box-shadow:inset 0 -6px 11px rgba(20,20,60,.18),inset 0 4px 7px rgba(255,255,255,.6),0 10px 18px -6px color-mix(in srgb,var(--k) 85%,#1e1b4b)}
 .pick span.gl svg{stroke-width:2.6;filter:drop-shadow(0 1.5px 1px rgba(20,20,60,.45))}
 .pick span.gl.k-sun{color:#5a3e00}.pick span.gl.k-rose{color:#6e2c17}
@@ -589,6 +614,7 @@ function vToday(){
   h+='<section class="sec" data-puff="areas"><h2>'+T("Your areas")+'</h2><div class="kards">'+AREAS.map(function(a,i){var n=S.habits.filter(function(x){return String(x.area)===String(i);}).length,v=+sc[a[0]]||0;return kard(a[2],a[4],esc(T(a[1])),T(n===1?"{n} habit":"{n} habits",{n:n})+(v?" · "+T("{x} of 10",{x:v}):""),ring(v*10),'data-act="open" data-kind="habit" data-id="'+i+'"');}).join("")+'</div></section>';
   h+='<section class="sec" data-puff="day"><h2>'+T("Your day")+'</h2><div class="kards">'+kard("sky","check",T("Tasks"),T("{n} open",{n:open.length}),ring(S.tasks.length?dn/S.tasks.length*100:0),'data-act="tab" data-id="tasks"')+kard("sage","sprout",T("Habits"),T("{a} of {b} today",{a:hd,b:ht}),ring(ht?hd/ht*100:0),'data-act="tab" data-id="habits"')+kard("petal","book",T("Journal"),T(wrote?"Written today":"Not yet today"),go,'data-act="tab" data-id="journal"')+kard("mist","coin",T("Money"),T(S.money.length===1?"{n} entry":"{n} entries",{n:S.money.length}),go,'data-act="tab" data-id="money"')+'</div></section>';
   h+='<div class="quick"><button type="button" class="k-sky" data-tip="Add a task you would like to finish." data-act="open" data-kind="task"><span class="orb">'+ic("check",30)+'</span>'+T("Task")+'</button><button type="button" class="k-sage" data-tip="Add a small habit to return to most days." data-act="open" data-kind="habit"><span class="orb">'+ic("sprout",30)+'</span>'+T("Habit")+'</button><button type="button" class="k-petal" data-tip="Write a few honest lines about today." data-act="open" data-kind="journal"><span class="orb">'+ic("book",30)+'</span>'+T("Entry")+'</button><button type="button" class="k-mist" data-tip="Note an amount that came in or went out." data-act="open" data-kind="money"><span class="orb">'+ic("coin",30)+'</span>'+T("Amount")+'</button></div>';
+  h+=wellRow();
   h+='<section class="sec" data-puff="tend"><div class="sechead"><h2>'+T("Habits to tend")+'</h2><button type="button" class="link" data-act="tab" data-id="habits">'+T("See the week")+'</button></div>';
   if(ht){h+='<div class="bar" aria-hidden="true"><i style="width:'+(hd/ht*100)+'%"></i></div><div class="chips">'+S.habits.map(function(x){var on=!!x.log[td];return '<button type="button" class="chip" aria-pressed="'+on+'" data-act="habit" data-id="'+x.id+'" data-day="'+td+'"><span class="dot f-'+HCOL[x.icon]+'">'+ic(on?"check":x.icon,16)+'</span>'+esc(x.name)+'</button>';}).join("")+'</div>';}
   else h+=empty(T("No habits planted yet"),T("Start with one small thing you can do most days."));
@@ -635,9 +661,46 @@ function vMoney(){
   var cats=Object.keys(by).sort(function(a,b){return by[b]-by[a];});cats.forEach(function(c){if(by[c]>max)max=by[c];});
   if(cats.length)h+='<div class="sec">'+cats.map(function(c){return '<div class="cat"><span>'+esc(T(c))+'</span><div class="bar"><i style="width:'+(by[c]/max*100)+'%"></i></div><span class="num">'+money(by[c])+'</span></div>';}).join("")+'</div>';
   h+='</div>';
+  h+=moneyExtras(month,mt,by);
   var list=S.money.slice().sort(function(a,b){return b.date.localeCompare(a.date);});
   if(!list.length)return h+empty(T("Nothing noted yet"),T("Add what came in or went out today."));
   return h+'<section class="sec" data-puff="entries"><h2>'+T("Entries")+'</h2><div class="card rows">'+list.map(function(m){return '<div class="row"><div class="grow"><div class="t">'+esc(m.note||T(m.cat))+'</div><span class="tag">'+esc(nice(m.date))+' · '+esc(T(m.cat))+'</span></div><span class="amt num'+(m.type==="in"?" in":"")+'">'+(m.type==="in"?"+ ":"− ")+money(m.amount)+'</span><button type="button" class="del" aria-label="'+T("Remove entry: ")+esc(m.note||T(m.cat))+'" data-act="rm" data-kind="money" data-id="'+m.id+'">'+ic("x",18)+'</button></div>';}).join("")+'</div></section>';
+}
+var PROMPTS=["What stayed with you today?","What made you smile, even a little?","What is one thing you did for yourself?","What are you carrying that you could set down?","Who or what are you grateful for today?","What did your body need today?","What would make tomorrow feel lighter?"];
+var CTAGS=[["Sleep","Sleep"],["Movement","Movement"],["Food","Food"],["Work","Work"],["People","People"]];
+var breath=null;
+function wellRow(){
+  var td=shift(0),ci=S.checkins.filter(function(c){return c.date===td;})[0],wt=S.water[td]||0,low=!!ci&&(ci.mood==="cloud"||ci.mood==="rain"||ci.mood==="storm");
+  var trend=[],i,d,c2;for(i=13;i>=0;i--){d=shift(-i);c2=S.checkins.filter(function(c){return c.date===d;})[0];trend.push({d:d,m:c2?c2.mood:""});}
+  var h='<section class="sec" data-puff="wellbeing"><div class="sechead"><h2>'+T("How are you right now?")+'</h2></div><div class="card well">';
+  h+='<div class="moodrow">'+MOODS.map(function(m){return '<button type="button" class="gmb orb k-'+MCOL[m[0]]+'" data-tip="'+esc(T(MTIP[m[0]]))+'" data-act="checkin" data-id="'+m[0]+'" aria-pressed="'+(!!ci&&ci.mood===m[0])+'" aria-label="'+esc(T(m[1]))+'">'+ic(m[0],26)+'</button>';}).join("")+'</div>';
+  if(ci)h+='<div class="chips">'+CTAGS.map(function(t){var on=(ci.tags||[]).indexOf(t[0])>-1;return '<button type="button" class="chip" aria-pressed="'+on+'" data-act="ctag" data-id="'+t[0]+'">'+esc(T(t[1]))+'</button>';}).join("")+'</div>';
+  if(low)h+='<p class="tag">'+esc(T("A slow breath can help. Tap Breathe below."))+'</p>';
+  if(ci&&ci.mood==="storm")h+='<p class="tag">'+esc(T("If things feel too heavy, please talk to someone you trust or a local helpline. You do not have to carry this alone."))+'</p>';
+  h+='<div class="trend" role="img" aria-label="'+esc(T("Your mood over the last 14 days"))+'">'+trend.map(function(x){return '<i'+(x.m?' class="k-'+MCOL[x.m]+'"':'')+' title="'+esc(nice(x.d))+'"></i>';}).join("")+'</div>';
+  h+='<div class="water"><div class="waterhead"><b>'+T("Water")+'</b><span class="tag">'+esc(T("{n} of 8 glasses",{n:wt}))+'</span></div><div class="glasses">'+[1,2,3,4,5,6,7,8].map(function(n){return '<button type="button" class="glass'+(wt>=n?" on":"")+'" data-tip="'+esc(T("One tap per glass. Tap again to undo."))+'" data-act="glass" data-id="'+n+'" aria-label="'+esc(T("Glass {n}",{n:n}))+'"></button>';}).join("")+'</div></div>';
+  h+='<button type="button" class="card breathe" data-act="open" data-kind="breathe"><span class="orb k-sky">'+ic("wave",26)+'</span><span class="grow"><b>'+T("Breathe for a minute")+'</b><small>'+T("Slow breathing, eyes open or closed")+'</small></span><span class="go">'+ic("right")+'</span></button>';
+  return h+'</div></section>';
+}
+function moneyExtras(month,mt,by){
+  var left=mt.i-mt.o,wk=weekKeys(),wIn=0,wOut=0,h='';
+  S.money.forEach(function(m){if(m.date>=wk[0]&&m.date<=wk[6]){if(m.type==="in")wIn+=+m.amount;else wOut+=+m.amount;}});
+  h+='<div class="card money-left"><div><span class="small muted">'+T("Left this month")+'</span><div class="big num">'+money(left)+'</div></div><span class="tag">'+esc(T("This week: {i} in, {o} out",{i:money(wIn),o:money(wOut)}))+'</span></div>';
+  var rows=CATS.out.filter(function(c){return S.budgets[c];}).map(function(c){
+    var spent=by[c]||0,lim=+S.budgets[c],pct=lim?spent/lim*100:0,st=pct>=100?"over":pct>=80?"near":"";
+    return '<div class="brow '+st+'"><span>'+esc(T(c))+'</span><div class="bar"><i style="width:'+Math.min(100,pct)+'%"></i></div><span class="num small">'+money(spent)+' / '+money(lim)+'</span>'+(st==="over"?'<span class="tag">'+esc(T("Over budget this month"))+'</span>':st==="near"?'<span class="tag">'+esc(T("Close to your limit"))+'</span>':'')+'</div>';
+  }).join("");
+  h+='<section class="sec" data-puff="budgets"><div class="sechead"><h2>'+T("Monthly budgets")+'</h2><button type="button" class="link" data-act="open" data-kind="budgets">'+T("Set budgets")+'</button></div>'+(rows?'<div class="card budgets">'+rows+'</div>':empty(T("No budgets set"),T("Give a category a monthly limit to see how it is going.")))+'</section>';
+  return h;
+}
+function breathStop(){if(breath){clearInterval(breath.t);clearTimeout(breath.end);breath=null;}var c=$("bcircle");if(c)c.classList.remove("go");var s=$("bstart");if(s)s.textContent=T("Start");}
+function breathStart(){
+  var pick=document.querySelector('input[name=bmin]:checked'),mins=pick?+pick.value:1,c=$("bcircle"),cnt=$("bcount"),s=$("bstart");if(!c)return;
+  var phase=0;
+  function tick(){if(phase%2===0){c.classList.add("go");cnt.textContent=T("Breathe in...");}else{c.classList.remove("go");cnt.textContent=T("Breathe out...");}phase++;}
+  tick();breath={t:setInterval(tick,5000)};
+  breath.end=setTimeout(function(){breathStop();cnt.textContent=T("Well done. Notice how you feel.");},mins*60000);
+  s.textContent=T("Stop");
 }
 function per(h){
   if(h==="day")return shift(0);
@@ -710,7 +773,7 @@ var pressTimer=null,pressFired=false,tipTimer=null;
 function navTip(text,el){var x=$("navtip");if(!x||!el)return;x.textContent=text;x.hidden=false;clearTimeout(tipTimer);var r=el.getBoundingClientRect(),w=x.offsetWidth,hh=x.offsetHeight;var cx=Math.max(w/2+8,Math.min(window.innerWidth-w/2-8,r.left+r.width/2));x.style.left=cx+"px";x.style.top=Math.max(hh+12,r.top-10)+"px";}
 function navTipHide(){clearTimeout(tipTimer);tipTimer=setTimeout(function(){var x=$("navtip");if(x)x.hidden=true;},1800);}
 var FAB={tasks:["task","Add task"],habits:["habit","Add habit"],journal:["journal","Write"],money:["money","Add amount"],goals:["goal","Plant a goal"]};
-function render(){if(!Array.isArray(S.goals))S.goals=[];
+function render(){if(!Array.isArray(S.goals))S.goals=[];if(!Array.isArray(S.checkins))S.checkins=[];if(!S.water)S.water={};if(!S.budgets)S.budgets={};
   $("app").innerHTML=VIEWS[tab]();
   $("tabs").innerHTML=TABS.map(function(t){return '<button type="button" data-act="tab" data-id="'+t[0]+'"'+(t[0]===tab?' aria-current="page"':'')+'><span class="nb k-'+t[3]+'">'+ic(t[2],20)+'</span>'+T(t[1])+'</button>';}).join("");
   var pf=$("puff");if(pf){pf.innerHTML=pal(puffMood());pf.setAttribute("aria-label",T("Puff, your little cloud friend. Tap to say hello"));}
@@ -776,6 +839,7 @@ function puffTips(k){
     habits:[T("Tap a day's circle to mark a habit you kept. Missed days are fine."),T("Morning, afternoon and evening groups help habits fit into your day."),T("A streak is nice, but coming back after a gap matters more.")],
     journal:[T("Not sure what to write? Name one thing that went well."),T("Choose the weather inside first. The words often follow."),T("Tap an old entry to read it again or make changes.")],
     money:[T("Note spending on the same day, while you still remember."),T("Look at your biggest category. Does it feel right to you?"),T("Small, regular savings add up quietly.")],
+    wellbeing:[T("Tap how you feel. An honest tap is enough."),T("Low today? A slow breath can help. Tap Breathe."),T("Tags show what affects your mood over time.")],
     goalshead:[T("Name a dream first. The steps can come later."),T("Open a goal to see its steps for this year, month, week and day.")],
     goal:[T("Break the goal into a few milestones for this year."),T("Daily steps are the ones that move you. Tick one today."),T("Weekly and daily steps start fresh, so you can always begin again.")],
     goalstoday:[T("These steps are waiting for you today. Pick the smallest one."),T("One small step is enough for today.")],
@@ -791,12 +855,14 @@ function openSheet(kind,id){
   if(kind==="habit"||kind==="habitedit")h=head(T(kind==="habit"?"New habit":"Edit habit"))+'<form data-form="habit" data-id="'+(kind==="habitedit"?id:"")+'"><input type="hidden" name="area" id="habit-area" value=""><div class="lbl">'+T("Choose a habit")+'<button type="button" class="dd" id="habit-dd" aria-expanded="false" data-act="dd"><span id="habit-dd-text">'+T("Write my own")+'</span>'+ic("down",20)+'</button><div class="ddlist" id="habit-ddlist" hidden><button type="button" class="ddo" data-act="pickhabit" data-id="">'+T("Write my own")+'</button>'+AREAS.map(function(a,ai){var g=a[1];return '<div class="ddg f-'+a[2]+'" id="ddg-'+ai+'">'+esc(T(g))+'</div>'+SUGGEST[g].map(function(x,i){return '<button type="button" class="ddo" data-act="pickhabit" data-id="'+ai+'|'+i+'">'+esc(T(x[0]))+'</button>';}).join("");}).join("")+'</div></div><label>'+T("Name")+'<input type="text" id="habit-name" name="name" required maxlength="60" autocomplete="off" placeholder="'+T("Stretch for five minutes")+'"></label><div class="lbl">'+T("Symbol")+'<div class="pick">'+HICONS.map(function(n,i){return '<label data-tip="'+esc(T(HTIP[n]))+'"><input type="radio" name="icon" id="habit-icon-'+n+'" value="'+n+'"'+(i?"":" checked")+' aria-label="'+n+'"><span class="gl k-'+HCOL[n]+'">'+ic(n)+'</span></label>';}).join("")+'</div></div><div class="lbl">'+T("Time of day")+'<div class="pick">'+PARTS.map(function(p,i){return '<label><input type="radio" name="part" id="habit-part-'+p[0]+'" value="'+p[0]+'"'+(i?"":" checked")+'><span>'+T(p[1])+'</span></label>';}).join("")+'</div></div><button class="btn" type="submit">'+T("Add habit")+'</button></form>';
   if(kind==="journal"){
     var j=id?S.journal.filter(function(x){return x.id===id;})[0]:null;
-    h=head(T(j?"Journal entry":"New journal entry"))+'<form data-form="journal" data-id="'+(j?j.id:"")+'"><label>'+T("Date")+'<input type="date" id="journal-date" name="date" required value="'+(j?j.date:td)+'" max="'+td+'"></label><div class="lbl">'+T("Weather inside")+'<div class="pick">'+MOODS.map(function(m){return '<label data-tip="'+esc(T(MTIP[m[0]]))+'"><input type="radio" name="mood" id="journal-mood-'+m[0]+'" value="'+m[0]+'"'+((j?j.mood:"fair")===m[0]?" checked":"")+'><span class="gm k-'+MCOL[m[0]]+'">'+ic(m[0],20)+T(m[1])+'</span></label>';}).join("")+'</div></div><label>'+T("Your words")+'<textarea id="journal-text" name="text" required maxlength="6000" placeholder="'+T("What stayed with you today?")+'">'+(j?esc(j.text):"")+'</textarea></label><div class="acts">'+(j?'<button class="btn warn" type="button" data-act="rm" data-kind="journal" data-id="'+j.id+'">'+T("Remove")+'</button>':"")+'<button class="btn" type="submit">'+T("Save entry")+'</button></div></form>';
+    h=head(T(j?"Journal entry":"New journal entry"))+'<form data-form="journal" data-id="'+(j?j.id:"")+'"><label>'+T("Date")+'<input type="date" id="journal-date" name="date" required value="'+(j?j.date:td)+'" max="'+td+'"></label><div class="lbl">'+T("Weather inside")+'<div class="pick">'+MOODS.map(function(m){return '<label data-tip="'+esc(T(MTIP[m[0]]))+'"><input type="radio" name="mood" id="journal-mood-'+m[0]+'" value="'+m[0]+'"'+((j?j.mood:"fair")===m[0]?" checked":"")+'><span class="gm k-'+MCOL[m[0]]+'">'+ic(m[0],20)+T(m[1])+'</span></label>';}).join("")+'</div></div><label>'+T("Your words")+'<textarea id="journal-text" name="text" required maxlength="6000" placeholder="'+T(PROMPTS[Math.floor(Date.now()/864e5)%PROMPTS.length])+'">'+(j?esc(j.text):"")+'</textarea></label><div class="acts">'+(j?'<button class="btn warn" type="button" data-act="rm" data-kind="journal" data-id="'+j.id+'">'+T("Remove")+'</button>':"")+'<button class="btn" type="submit">'+T("Save entry")+'</button></div></form>';
   }
   if(kind==="money")h=head(T("New amount"))+'<form data-form="money"><div class="pick"><label><input type="radio" name="type" id="money-out" value="out" checked><span>'+T("Went out")+'</span></label><label><input type="radio" name="type" id="money-in" value="in"><span>'+T("Came in")+'</span></label></div><div class="two"><label>'+esc(T("Amount ({c})",{c:S.currency}))+'<input type="number" id="money-amount" name="amount" required min="0.01" step="0.01" inputmode="decimal"></label><label>'+T("Date")+'<input type="date" id="money-date" name="date" required value="'+td+'"></label></div><div class="lbl">'+T("Category")+'<div class="pick" id="money-cat">'+catPick("out")+'</div></div><label>'+T("Note (optional)")+'<input type="text" id="money-note" name="note" maxlength="80" autocomplete="off"></label><button class="btn" type="submit">'+T("Add amount")+'</button></form>';
   if(kind==="goal")h=head(T(id?"Edit goal":"New goal"))+'<form data-form="goal" data-id="'+(id||"")+'"><label>'+T("What would you like to reach?")+'<input type="text" id="goal-title" name="title" required maxlength="80" autocomplete="off" placeholder="'+T("A house in the country")+'"></label><label>'+T("Why it matters to you (optional)")+'<textarea id="goal-why" name="why" maxlength="300"></textarea></label><button class="btn" type="submit">'+T(id?"Save goal":"Plant this goal")+'</button></form>';
   if(kind==="step"){var sp=String(id||"").split("|"),sg=find("goals",sp[0]),ss=sg?sg.steps.filter(function(x){return x.id===sp[1];})[0]:null;
     if(ss)h=head(T("Edit step"))+'<form data-form="stepedit" data-goal="'+sg.id+'" data-id="'+ss.id+'"><label>'+T("Step")+'<input type="text" id="step-text" name="text" required maxlength="120" value="'+esc(ss.text)+'" autocomplete="off"></label><div class="lbl">'+T("When")+'<div class="pick">'+HZ.map(function(z){return '<label><input type="radio" name="h" value="'+z[0]+'"'+(ss.horizon===z[0]?" checked":"")+'><span>'+T(z[1])+'</span></label>';}).join("")+'</div></div><button class="btn" type="submit">'+T("Save step")+'</button><div class="acts"><button class="btn soft" type="button" data-act="tasksfromstep" data-goal="'+sg.id+'" data-id="'+ss.id+'">'+T("Add to my tasks")+'</button><button class="btn warn" type="button" data-act="rmstep" data-goal="'+sg.id+'" data-id="'+ss.id+'">'+T("Remove")+'</button></div></form>';}
+  if(kind==="breathe")h=head(T("Breathe for a minute"))+'<p class="muted small">'+T("Breathe in as the circle grows, out as it shrinks. Eyes can stay open.")+'</p><div class="breathe-stage" aria-hidden="true"><div class="bcircle" id="bcircle"></div></div><p class="bcount num" id="bcount" aria-live="polite">'+T("Ready when you are")+'</p><div class="pick">'+[1,3,5].map(function(m,i){return '<label><input type="radio" name="bmin" value="'+m+'"'+(i===0?" checked":"")+'><span>'+T("{n} min",{n:m})+'</span></label>';}).join("")+'</div><div class="acts"><button class="btn" type="button" id="bstart" data-act="bstart">'+T("Start")+'</button></div>';
+  if(kind==="budgets")h=head(T("Monthly budgets"))+'<p class="muted small">'+T("Set a monthly limit for each category. Leave blank for none.")+'</p><form data-form="budgets">'+CATS.out.map(function(c){return '<label>'+esc(T(c))+' ('+esc(S.currency)+')<input type="number" min="0" step="1" inputmode="decimal" name="b_'+c+'" value="'+(S.budgets[c]||"")+'"></label>';}).join("")+'<button class="btn" type="submit">'+T("Save budgets")+'</button></form>';
   if(kind==="lang")h='<div class="top"><h2 style="display:flex;align-items:center;gap:8px">'+ic("globe",22)+'Language · Taal · Ulimi</h2><button type="button" class="iconbtn" aria-label="Close" data-act="close">'+ic("x")+'</button></div>'+langList();
   if(kind==="tour"){tourStep=0;h=tourHtml();try{localStorage.setItem(KEY+"-tour","1");}catch(e){}}
   if(kind==="balance"){
@@ -806,14 +872,14 @@ function openSheet(kind,id){
   if(kind==="settings"){
     armed=false;
     var where=T(sync==="account"?"Your planner is saved privately to your account, so it follows you between phones.":sync==="waiting"?"Your account storage has not answered yet. Changes are kept on this device for now.":"Your planner is saved on this device.");
-    h=head(T("Settings"))+'<form data-form="settings"><button type="button" class="btn soft" data-act="open" data-kind="tour">'+T("Show the welcome tour")+'</button><label>'+T("Your first name (optional)")+'<input type="text" id="set-name" name="name" maxlength="30" value="'+esc(S.name)+'" autocomplete="off"></label><label>'+T("Daily reminder time (optional)")+'<input type="time" id="set-remind" name="remind" value="'+esc(S.remind||"")+'"></label><label>'+T("Currency symbol")+'<input type="text" id="set-cur" name="currency" maxlength="4" required value="'+esc(S.currency)+'" autocomplete="off"></label>'+langPick()+'<p class="small muted">'+where+' '+T("Save a backup now and then, so you can restore it on a new phone.")+'</p><div class="acts"><button class="btn soft" type="button" data-act="csv">'+T("Export money (CSV)")+'</button><button class="btn soft" type="button" data-act="backup">'+T("Save a backup")+'</button><label class="btn soft" style="position:relative;overflow:hidden;flex-direction:row;align-items:center;justify-content:center;color:var(--ink);font-size:16px;font-weight:600">'+T("Restore a backup")+'<input type="file" id="restore-file" class="filecover" accept="application/json,.json" aria-label="'+T("Choose a backup file")+'"></label></div><div class="acts"><button class="btn warn" type="button" id="wipe" data-act="wipe">'+T("Clear everything")+'</button><button class="btn" type="submit">'+T("Save")+'</button></div></form>';
+    h=head(T("Settings"))+'<form data-form="settings"><button type="button" class="btn soft" data-act="open" data-kind="tour">'+T("Show the welcome tour")+'</button><label>'+T("Your first name (optional)")+'<input type="text" id="set-name" name="name" maxlength="30" value="'+esc(S.name)+'" autocomplete="off"></label><label>'+T("Daily reminder time (optional)")+'<input type="time" id="set-remind" name="remind" value="'+esc(S.remind||"")+'"></label><label>'+T("Currency symbol")+'<input type="text" id="set-cur" name="currency" maxlength="4" required value="'+esc(S.currency)+'" autocomplete="off"></label>'+langPick()+'<p class="small muted">'+where+' '+T("Save a backup now and then, so you can restore it on a new phone.")+'</p><div class="acts"><button class="btn soft" type="button" data-act="csv">'+T("Export money (CSV)")+'</button><button class="btn soft" type="button" data-act="csvc">'+T("Export check-ins (CSV)")+'</button><button class="btn soft" type="button" data-act="backup">'+T("Save a backup")+'</button><label class="btn soft" style="position:relative;overflow:hidden;flex-direction:row;align-items:center;justify-content:center;color:var(--ink);font-size:16px;font-weight:600">'+T("Restore a backup")+'<input type="file" id="restore-file" class="filecover" accept="application/json,.json" aria-label="'+T("Choose a backup file")+'"></label></div><div class="acts"><button class="btn warn" type="button" id="wipe" data-act="wipe">'+T("Clear everything")+'</button><button class="btn" type="submit">'+T("Save")+'</button></div></form>';
   }
   $("sheet").innerHTML=h;$("veil").hidden=false;
   if(id&&(kind==="task"||kind==="habitedit"||kind==="goal"))editFill(kind,id);
   var f=$("sheet").querySelector("input[type=text],input[type=number],textarea");if(f&&kind!=="settings"&&!id)f.focus();
   if(kind==="habit"&&id!=null&&id!==""){var dl=$("habit-ddlist"),dg=$("ddg-"+id);dl.hidden=false;$("habit-dd").setAttribute("aria-expanded","true");if(dg)dl.scrollTop=dg.offsetTop-dl.offsetTop;}
 }
-function closeSheet(){$("veil").hidden=true;$("sheet").innerHTML="";}
+function closeSheet(){breathStop();$("veil").hidden=true;$("sheet").innerHTML="";}
 function toast(msg,canUndo){
   var t=$("toast");t.innerHTML='<span>'+esc(msg)+'</span>'+(canUndo?'<button type="button" data-act="undo">'+T("Undo")+'</button>':'');t.hidden=false;
   clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.hidden=true;undoState=null;},6000);
@@ -862,6 +928,11 @@ document.addEventListener("click",function(e){
   else if(a==="tasksfromstep"){var tg=find("goals",b.dataset.goal),ts=tg?tg.steps.filter(function(x){return x.id===id;})[0]:null;if(ts){S.tasks.push({id:uid(),title:ts.text,due:ts.horizon==="day"?shift(0):"",done:false});save();closeSheet();render();toast(T("Added to your tasks."));}}
   else if(a==="reflect"){openSheet("journal");var ta=$("journal-text");if(ta)ta.value=T("What went well this week?")+"\n\n"+T("What was hard?")+"\n\n"+T("What is one small step for next week?");}
   else if(a==="csv"){try{var rows=[["Date","Type","Category","Amount","Note"]];S.money.slice().sort(function(x,y){return x.date<y.date?-1:1;}).forEach(function(m){rows.push([m.date,m.type==="in"?"In":"Out",m.cat,m.amount,m.note||""]);});var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");var cb=new Blob(["\ufeff"+csv],{type:"text/csv"}),cu=URL.createObjectURL(cb),cl=document.createElement("a");cl.href=cu;cl.download="life-planner-money-"+shift(0)+".csv";document.body.appendChild(cl);cl.click();cl.remove();setTimeout(function(){URL.revokeObjectURL(cu);},2000);toast(T("Money exported as a spreadsheet file."));}catch(e){toast(T("The file could not be saved."));}}
+  else if(a==="checkin"){var cd=shift(0),cx=null;S.checkins=S.checkins.filter(function(c){if(c.date===cd){cx=c;return false;}return true;});S.checkins.push({date:cd,mood:id,tags:(cx&&cx.tags)||[]});save();render();}
+  else if(a==="ctag"){var cd2=shift(0),cc=S.checkins.filter(function(c){return c.date===cd2;})[0];if(!cc){toast(T("Pick how you feel first."));return;}cc.tags=cc.tags||[];var ti=cc.tags.indexOf(id);if(ti>-1)cc.tags.splice(ti,1);else cc.tags.push(id);save();render();}
+  else if(a==="glass"){var wd=shift(0),wn=+id;S.water[wd]=(S.water[wd]===wn)?wn-1:wn;save();render();}
+  else if(a==="bstart"){if(breath)breathStop();else breathStart();}
+  else if(a==="csvc"){try{var crow=[["Date","Mood","Tags"]];S.checkins.slice().sort(function(x,y){return x.date<y.date?-1:1;}).forEach(function(c){crow.push([c.date,c.mood,(c.tags||[]).join("; ")]);});var ccsv=crow.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");var kb=new Blob(["﻿"+ccsv],{type:"text/csv"}),ku=URL.createObjectURL(kb),kl=document.createElement("a");kl.href=ku;kl.download="life-planner-checkins-"+shift(0)+".csv";document.body.appendChild(kl);kl.click();kl.remove();setTimeout(function(){URL.revokeObjectURL(ku);},2000);toast(T("Check-ins exported as a spreadsheet file."));}catch(e){toast(T("The file could not be saved."));}}
   else if(a==="wipe"){
     if(!armed){armed=true;b.textContent=T("Tap again to clear");return;}
     keepUndo();var c=S.currency;S=blank();S.currency=c;save();closeSheet();render();toast(T("Everything cleared."),true);
@@ -902,6 +973,7 @@ document.addEventListener("submit",function(e){
   else if(k==="goal"){if(!v("title"))return;if(f.dataset.id){var eg=find("goals",f.dataset.id);if(eg){eg.title=v("title");eg.why=v("why");}toast(T("Goal saved."));}else{S.goals.push({id:uid(),title:v("title"),why:v("why"),steps:[]});toast(T("Goal planted. Add a first step under it."));}}
   else if(k==="step"){var sg2=find("goals",f.dataset.goal);if(!sg2||!v("text"))return;sg2.steps.push({id:uid(),text:v("text"),horizon:v("h")||"day",done:false,period:""});toast(T("Step added."));}
   else if(k==="stepedit"){var se=find("goals",f.dataset.goal),ste=se?se.steps.filter(function(x){return x.id===f.dataset.id;})[0]:null;if(!ste||!v("text"))return;var nh=v("h")||ste.horizon;if(nh!==ste.horizon){ste.done=false;ste.period="";}ste.text=v("text");ste.horizon=nh;toast(T("Step saved."));}
+  else if(k==="budgets"){CATS.out.forEach(function(c){var x=parseFloat(f.elements["b_"+c].value);if(x>0)S.budgets[c]=x;else delete S.budgets[c];});toast(T("Budgets saved."));}
   else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";S.remind=v("remind");if(S.remind&&"Notification" in window&&Notification.permission==="default")Notification.requestPermission().then(remindCheck);var nl=v("lang");if(nl&&nl!==LANG)setLang(nl);toast(T("Saved."));}
   save();closeSheet();render();
 });

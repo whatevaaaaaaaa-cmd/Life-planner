@@ -1,5 +1,5 @@
 /* Keeps the planner working without a connection. Raise the version when you replace the files. */
-var VERSION="life-planner-13";
+var VERSION="life-planner-14";
 var FILES=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","icon-180.png"];
 self.addEventListener("install",function(e){e.waitUntil(caches.open(VERSION).then(function(c){return c.addAll(FILES);}).then(function(){return self.skipWaiting();}));});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(n){return n!==VERSION;}).map(function(n){return caches.delete(n);}));}).then(function(){return self.clients.claim();}));});

@@ -111,7 +111,7 @@ h2{font-family:var(--display);font-weight:500;font-size:19px}
 .amt.in{color:var(--sage-ink)}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);z-index:20;
   padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
-nav div{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav div{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
 nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted);padding:4px 0;min-height:52px}
 nav button span{width:52px;height:28px;border-radius:14px;display:grid;place-items:center}
 nav button[aria-current="page"]{color:var(--sage-ink);font-weight:600}
@@ -292,6 +292,19 @@ section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
 .dots i{width:8px;height:8px;border-radius:999px;background:var(--line);transition:width .2s}
 .dots i.on{width:22px;background:var(--accent)}
 .tour .acts{width:100%}
+.goal{padding:16px;display:flex;flex-direction:column;gap:12px}
+.gh{display:flex;align-items:center;gap:12px}
+.goal .rows{display:flex;flex-direction:column;gap:8px}
+.goal .rows>*{background:var(--bg);box-shadow:none;border-radius:20px}
+.hz{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:4px 4px 0}
+.stepform{display:flex;flex-direction:column;gap:10px}
+.addstep{display:flex;gap:8px;align-items:center}
+.addstep input{flex:1;min-width:0}
+.addstep .btn{flex:none}
+.goalbtns{display:flex;gap:8px;flex-wrap:wrap}
+.advice{padding:14px 18px}
+.advice summary{font-weight:700;cursor:pointer;color:var(--ink)}
+.advice ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55}
 </style>
 </head>
 <body>
@@ -309,13 +322,14 @@ section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
 (function(){
 "use strict";
 var KEY="life-planner";
-var TABS=[["today","Today","hill","sky"],["tasks","Tasks","check","sun"],["habits","Habits","sprout","sage"],["journal","Journal","book","petal"],["money","Money","coin","mist"]];
+var TABS=[["today","Today","hill","sky"],["tasks","Tasks","check","sun"],["habits","Habits","sprout","sage"],["goals","Goals","flag","rose"],["journal","Journal","book","petal"],["money","Money","coin","mist"]];
 var I={
  hill:'<circle cx="17" cy="7" r="2.5"/><path d="M2 19l6-9 4 6 3-4 7 7z"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
  sprout:'<path d="M12 21v-9M12 12c0-4-3-6-7-6 0 4 3 6 7 6zM12 15c0-3 2.500-5 7-5 0 3-2.500 5-7 5z"/>',
  book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21V5M8 8h7"/>',
  coin:'<circle cx="12" cy="12" r="8.500"/><path d="M12 7.500v9M14.500 9.500c-.5-1-4.500-1.500-4.500.8s5 1.200 5 3.500-4.500 1.700-5.200.5"/>',
+ flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
  x:'<path d="M6 6l12 12M18 6L6 18"/>',
  down:'<path d="M6 9l6 6 6-6"/>',
@@ -385,14 +399,14 @@ function $(id){return document.getElementById(id);}
 
 function examples(){
   var t=shift(0),log=function(a){var o={};a.forEach(function(n){o[shift(-n)]=1;});return o;};
-  return {v:1,updatedAt:0,name:"",currency:"R",examples:true,
+  return {v:1,updatedAt:0,name:"",currency:"R",examples:true,goals:[{id:"g1",title:T("A house in the country"),why:T("Space to breathe, a garden and quiet mornings."),steps:[{id:"gs1",text:T("Look at three country listings"),horizon:"week",done:false,period:""},{id:"gs2",text:T("Set a monthly amount for savings"),horizon:"month",done:false,period:""},{id:"gs3",text:T("Spend ten minutes on the budget"),horizon:"day",done:false,period:""},{id:"gs4",text:T("Save towards a deposit"),horizon:"year",done:false,period:""}]}],
    wheel:{date:shift(-3),scores:{mindfulness:5,selfcare:4,productivity:7,mental:6,nutrition:6,financial:5}},
    tasks:[{id:"e1",title:T("Water the plants on the stoep"),due:t,done:false},{id:"e2",title:T("Reply to Mum's message"),due:"",done:false},{id:"e3",title:T("Book the dentist check-up"),due:shift(3),done:false},{id:"e4",title:T("Ten quiet minutes before work"),due:t,done:true}],
    habits:[{id:"h1",name:T("Drink water"),icon:"drop",part:"any",area:"4",log:log([0,1,2,3,5])},{id:"h2",name:T("Walk outside"),icon:"tree",part:"morning",area:"1",log:log([1,2,3])},{id:"h3",name:T("Read ten pages"),icon:"book",part:"evening",area:"2",log:log([1,3,4])},{id:"h4",name:T("Lights out by ten"),icon:"moon",part:"evening",area:"1",log:log([1,2])}],
    journal:[{id:"j1",date:shift(-1),mood:"fair",text:T("Slow start, but the walk helped. Noticed the jacarandas are nearly done. Grateful for a quiet evening.")}],
    money:[{id:"m1",date:shift(-6),type:"in",amount:18500,cat:"Income",note:T("Salary")},{id:"m2",date:shift(-4),type:"out",amount:6200,cat:"Home",note:T("Rent")},{id:"m3",date:shift(-2),type:"out",amount:1340.500,cat:"Food",note:T("Groceries")},{id:"m4",date:shift(-1),type:"out",amount:420,cat:"Transport",note:T("Petrol")},{id:"m5",date:t,type:"out",amount:85,cat:"Leisure",note:T("Coffee with a friend")}]};
 }
-function blank(){return {v:1,updatedAt:0,name:"",currency:"R",examples:false,wheel:null,tasks:[],habits:[],journal:[],money:[]};}
+function blank(){return {v:1,updatedAt:0,name:"",currency:"R",examples:false,wheel:null,tasks:[],habits:[],journal:[],money:[],goals:[]};}
 function valid(o){return o&&typeof o==="object"&&Array.isArray(o.tasks)&&Array.isArray(o.habits)&&Array.isArray(o.journal)&&Array.isArray(o.money);}
 
 var S=examples();
@@ -562,6 +576,7 @@ function vToday(){
   h+='</section><section class="sec" data-puff="fortoday"><div class="sechead"><h2>'+T("For today")+'</h2><button type="button" class="link" data-act="tab" data-id="tasks">'+T("All tasks")+'</button></div>';
   h+=focus.length?'<div class="card rows">'+focus.map(taskRow).join("")+'</div>':empty(T("Nothing waiting"),T("Enjoy the open space, or add something gentle."));
   h+='</section>';
+  h+=goalsToday();
   return h;
 }
 function vTasks(){
@@ -605,9 +620,45 @@ function vMoney(){
   if(!list.length)return h+empty(T("Nothing noted yet"),T("Add what came in or went out today."));
   return h+'<section class="sec" data-puff="entries"><h2>'+T("Entries")+'</h2><div class="card rows">'+list.map(function(m){return '<div class="row"><div class="grow"><div class="t">'+esc(m.note||T(m.cat))+'</div><span class="tag">'+esc(nice(m.date))+' · '+esc(T(m.cat))+'</span></div><span class="amt num'+(m.type==="in"?" in":"")+'">'+(m.type==="in"?"+ ":"− ")+money(m.amount)+'</span><button type="button" class="del" aria-label="'+T("Remove entry: ")+esc(m.note||T(m.cat))+'" data-act="rm" data-kind="money" data-id="'+m.id+'">'+ic("x",18)+'</button></div>';}).join("")+'</div></section>';
 }
-var VIEWS={today:vToday,tasks:vTasks,habits:vHabits,journal:vJournal,money:vMoney};
-var FAB={tasks:["task","Add task"],habits:["habit","Add habit"],journal:["journal","Write"],money:["money","Add amount"]};
-function render(){
+function per(h){
+  if(h==="day")return shift(0);
+  if(h==="week")return weekKeys()[0];
+  if(h==="month")return shift(0).slice(0,7);
+  return String(new Date().getFullYear());
+}
+function isDone(s){return !!s.done&&s.period===per(s.horizon);}
+var HZ=[["year","This year"],["month","This month"],["week","This week"],["day","Today"]];
+function gRow(g,s,tag){
+  var on=isDone(s);
+  return '<div class="row'+(on?" done":"")+'"><button type="button" class="check" aria-pressed="'+on+'" aria-label="'+(on?T("Mark as not done: "):T("Mark as done: "))+esc(s.text)+'" data-act="gstep" data-goal="'+g.id+'" data-id="'+s.id+'">'+ic("check",16)+'</button><div class="grow"><div class="t">'+esc(s.text)+'</div>'+(tag?'<span class="tag">'+esc(tag)+'</span>':'')+'</div><button type="button" class="del" aria-label="'+T("Remove step: ")+esc(s.text)+'" data-act="rmstep" data-goal="'+g.id+'" data-id="'+s.id+'">'+ic("x",18)+'</button></div>';
+}
+function vGoals(){
+  var h='<div class="hello" data-puff="goalshead"><h1>'+T("Goals")+'</h1><p class="muted">'+T("Dream it, then take it one small step at a time.")+'</p></div>';
+  h+='<details class="card advice"><summary>'+T("How to break a goal down")+'</summary><ul><li>'+T("This year: two to four milestones that together reach your goal.")+'</li><li>'+T("This month: one step for each milestone, so every month moves you forward.")+'</li><li>'+T("This week: two or three actions that make the month\'s step possible.")+'</li><li>'+T("Today: one small action, ten to twenty minutes. Small steps add up.")+'</li><li>'+T("Weekly and daily steps start fresh each week and day, so you can always begin again.")+'</li></ul></details>';
+  if(!S.goals.length)return h+empty(T("No goals yet"),T("Name something you would like to reach, such as a house in the country."))+'<div class="acts"><button type="button" class="btn" data-act="open" data-kind="goal">'+T("Plant a goal")+'</button></div>';
+  S.goals.forEach(function(g){
+    var dn=g.steps.filter(isDone).length,tot=g.steps.length;
+    h+='<section class="card goal" data-puff="goal"><div class="gh"><span class="badge f-rose">'+ic("flag")+'</span><div class="grow" style="min-width:0;flex:1"><div class="t">'+esc(g.title)+'</div>'+(g.why?'<span class="tag">'+esc(g.why)+'</span>':'')+'</div><button type="button" class="del" aria-label="'+T("Remove goal: ")+esc(g.title)+'" data-act="rm" data-kind="goals" data-id="'+g.id+'">'+ic("x",18)+'</button></div>';
+    if(tot)h+='<div class="bar" aria-hidden="true"><i style="width:'+(dn/tot*100)+'%"></i></div><span class="tag">'+esc(T("{a} of {b} steps done",{a:dn,b:tot}))+'</span>';
+    HZ.forEach(function(z){
+      var list=g.steps.filter(function(s){return s.horizon===z[0];});
+      if(list.length)h+='<div class="hz">'+T(z[1])+'</div><div class="rows">'+list.map(function(s){return gRow(g,s,"");}).join("")+'</div>';
+    });
+    if(!tot)h+='<div class="goalbtns"><button type="button" class="btn soft sm" data-act="starter" data-id="'+g.id+'">'+T("Add starter steps")+'</button></div>';
+    h+='<form class="stepform" data-form="step" data-goal="'+g.id+'"><div class="pick">'+HZ.map(function(z,i){return '<label><input type="radio" name="h" id="gh-'+g.id+'-'+z[0]+'" value="'+z[0]+'"'+(i===3?" checked":"")+'><span>'+T(z[1])+'</span></label>';}).join("")+'</div><div class="addstep"><input type="text" name="text" required maxlength="120" placeholder="'+T("Add a step")+'" aria-label="'+T("Add a step")+'" autocomplete="off"><button class="btn sm" type="submit">'+T("Add")+'</button></div></form>';
+    h+='</section>';
+  });
+  return h;
+}
+function goalsToday(){
+  var list=[];S.goals.forEach(function(g){g.steps.forEach(function(s){if(s.horizon==="day"||s.horizon==="week")list.push({g:g,s:s});});});
+  if(!list.length)return "";
+  list.sort(function(a,b){return (isDone(a.s)?1:0)-(isDone(b.s)?1:0);});
+  return '<section class="sec" data-puff="goalstoday"><div class="sechead"><h2>'+T("Goal steps")+'</h2><button type="button" class="link" data-act="tab" data-id="goals">'+T("All goals")+'</button></div><div class="card rows">'+list.map(function(x){return gRow(x.g,x.s,T(x.s.horizon==="day"?"Today":"This week")+" · "+x.g.title);}).join("")+'</div></section>';
+}
+var VIEWS={today:vToday,tasks:vTasks,habits:vHabits,goals:vGoals,journal:vJournal,money:vMoney};
+var FAB={tasks:["task","Add task"],habits:["habit","Add habit"],journal:["journal","Write"],money:["money","Add amount"],goals:["goal","Plant a goal"]};
+function render(){if(!Array.isArray(S.goals))S.goals=[];
   $("app").innerHTML=VIEWS[tab]();
   $("tabs").innerHTML=TABS.map(function(t){return '<button type="button" data-act="tab" data-id="'+t[0]+'"'+(t[0]===tab?' aria-current="page"':'')+'><span class="nb k-'+t[3]+'">'+ic(t[2],20)+'</span>'+T(t[1])+'</button>';}).join("");
   var pf=$("puff");if(pf){pf.innerHTML=pal(puffMood());pf.setAttribute("aria-label",T("Puff, your little cloud friend. Tap to say hello"));}
@@ -673,6 +724,9 @@ function puffTips(k){
     habits:[T("Tap a day's circle to mark a habit you kept. Missed days are fine."),T("Morning, afternoon and evening groups help habits fit into your day."),T("A streak is nice, but coming back after a gap matters more.")],
     journal:[T("Not sure what to write? Name one thing that went well."),T("Choose the weather inside first. The words often follow."),T("Tap an old entry to read it again or make changes.")],
     money:[T("Note spending on the same day, while you still remember."),T("Look at your biggest category. Does it feel right to you?"),T("Small, regular savings add up quietly.")],
+    goalshead:[T("Name a dream first. The steps can come later."),T("Open a goal to see its steps for this year, month, week and day.")],
+    goal:[T("Break the goal into a few milestones for this year."),T("Daily steps are the ones that move you. Tick one today."),T("Weekly and daily steps start fresh, so you can always begin again.")],
+    goalstoday:[T("These steps are waiting for you today. Pick the smallest one."),T("One small step is enough for today.")],
     entries:[T("Tap the cross to remove an entry added by mistake."),T("Add a short note so you remember what each amount was for.")]
   };
   return tips[k]||palLines();
@@ -688,6 +742,7 @@ function openSheet(kind,id){
     h=head(T(j?"Journal entry":"New journal entry"))+'<form data-form="journal" data-id="'+(j?j.id:"")+'"><label>'+T("Date")+'<input type="date" id="journal-date" name="date" required value="'+(j?j.date:td)+'" max="'+td+'"></label><div class="lbl">'+T("Weather inside")+'<div class="pick">'+MOODS.map(function(m){return '<label><input type="radio" name="mood" id="journal-mood-'+m[0]+'" value="'+m[0]+'"'+((j?j.mood:"fair")===m[0]?" checked":"")+'><span>'+ic(m[0],20)+T(m[1])+'</span></label>';}).join("")+'</div></div><label>'+T("Your words")+'<textarea id="journal-text" name="text" required maxlength="6000" placeholder="'+T("What stayed with you today?")+'">'+(j?esc(j.text):"")+'</textarea></label><div class="acts">'+(j?'<button class="btn warn" type="button" data-act="rm" data-kind="journal" data-id="'+j.id+'">'+T("Remove")+'</button>':"")+'<button class="btn" type="submit">'+T("Save entry")+'</button></div></form>';
   }
   if(kind==="money")h=head(T("New amount"))+'<form data-form="money"><div class="pick"><label><input type="radio" name="type" id="money-out" value="out" checked><span>'+T("Went out")+'</span></label><label><input type="radio" name="type" id="money-in" value="in"><span>'+T("Came in")+'</span></label></div><div class="two"><label>'+esc(T("Amount ({c})",{c:S.currency}))+'<input type="number" id="money-amount" name="amount" required min="0.01" step="0.01" inputmode="decimal"></label><label>'+T("Date")+'<input type="date" id="money-date" name="date" required value="'+td+'"></label></div><div class="lbl">'+T("Category")+'<div class="pick" id="money-cat">'+catPick("out")+'</div></div><label>'+T("Note (optional)")+'<input type="text" id="money-note" name="note" maxlength="80" autocomplete="off"></label><button class="btn" type="submit">'+T("Add amount")+'</button></form>';
+  if(kind==="goal")h=head(T("New goal"))+'<form data-form="goal"><label>'+T("What would you like to reach?")+'<input type="text" id="goal-title" name="title" required maxlength="80" autocomplete="off" placeholder="'+T("A house in the country")+'"></label><label>'+T("Why it matters to you (optional)")+'<textarea id="goal-why" name="why" maxlength="300"></textarea></label><button class="btn" type="submit">'+T("Plant this goal")+'</button></form>';
   if(kind==="lang")h='<div class="top"><h2 style="display:flex;align-items:center;gap:8px">'+ic("globe",22)+'Language · Taal · Ulimi</h2><button type="button" class="iconbtn" aria-label="Close" data-act="close">'+ic("x")+'</button></div>'+langList();
   if(kind==="tour"){tourStep=0;h=tourHtml();try{localStorage.setItem(KEY+"-tour","1");}catch(e){}}
   if(kind==="balance"){
@@ -745,6 +800,9 @@ document.addEventListener("click",function(e){
     $("habit-ddlist").hidden=true;$("habit-dd").setAttribute("aria-expanded","false");
   }
   else if(a==="pal"){var L=puffTips(puffKey),pn=puffTurn[puffKey]||0;puffTurn[puffKey]=pn+1;puffSay(L[pn%L.length]);b.classList.remove("hop");void b.offsetWidth;b.classList.add("hop");}
+  else if(a==="gstep"){var gl=find("goals",b.dataset.goal),sp=gl?gl.steps.filter(function(x){return x.id===id;})[0]:null;if(sp){if(isDone(sp))sp.done=false;else{sp.done=true;sp.period=per(sp.horizon);}save();render();}}
+  else if(a==="rmstep"){var gr=find("goals",b.dataset.goal);if(gr){keepUndo();gr.steps=gr.steps.filter(function(x){return x.id!==id;});save();render();toast(T("Step removed."),true);}}
+  else if(a==="starter"){var gs=find("goals",id);if(gs){gs.steps.push({id:uid(),text:T("Write down what done looks like"),horizon:"year",done:false,period:""},{id:uid(),text:T("Choose one milestone for this month"),horizon:"month",done:false,period:""},{id:uid(),text:T("Pick two actions for this week"),horizon:"week",done:false,period:""},{id:uid(),text:T("Do one small thing towards it today"),horizon:"day",done:false,period:""});save();render();toast(T("Starter steps added. Make them yours."));}}
   else if(a==="wipe"){
     if(!armed){armed=true;b.textContent=T("Tap again to clear");return;}
     keepUndo();var c=S.currency;S=blank();S.currency=c;save();closeSheet();render();toast(T("Everything cleared."),true);
@@ -782,6 +840,8 @@ document.addEventListener("submit",function(e){
   }
   else if(k==="money"){var amt=parseFloat(v("amount"));if(!(amt>0))return;S.money.push({id:uid(),date:v("date"),type:v("type"),amount:Math.round(amt*100)/100,cat:v("cat"),note:v("note")});toast(T("Amount added."));}
   else if(k==="balance"){var o={};AREAS.forEach(function(a){o[a[0]]=+f.elements[a[0]].value;});S.wheel={date:shift(0),scores:o};toast(T("Your wheel is saved."));}
+  else if(k==="goal"){if(!v("title"))return;S.goals.push({id:uid(),title:v("title"),why:v("why"),steps:[]});toast(T("Goal planted. Add a first step under it."));}
+  else if(k==="step"){var sg=find("goals",f.dataset.goal);if(!sg||!v("text"))return;sg.steps.push({id:uid(),text:v("text"),horizon:v("h")||"day",done:false,period:""});toast(T("Step added."));}
   else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";var nl=v("lang");if(nl&&nl!==LANG)setLang(nl);toast(T("Saved."));}
   save();closeSheet();render();
 });

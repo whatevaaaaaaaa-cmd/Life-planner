@@ -357,6 +357,12 @@ section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
 @media (prefers-reduced-motion: reduce){.btn,.fab,.iconbtn{transition:none}.btn:active,.fab:active,.iconbtn:active{transform:none}}
 /* Settings buttons: wrap two per row so long labels such as Restore a backup stay readable */
 form[data-form="settings"] .acts>*{flex:1 1 150px;min-width:0;min-height:52px;border-radius:16px;padding:8px 12px;text-align:center;line-height:1.25}
+/* Calm games */
+.calmlist{display:grid;gap:10px;margin-top:6px}
+.gcanvas{display:block;width:100%;max-width:340px;height:auto;aspect-ratio:300/360;margin:12px auto;border-radius:20px;touch-action:none;box-shadow:var(--shadow);background:#f5f5fb}
+.pgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
+.pcard{aspect-ratio:1;min-width:0;border-radius:16px;background:var(--surface2);font-size:26px;display:grid;place-items:center;color:var(--muted);box-shadow:inset 0 2px 4px rgba(20,20,60,.12)}
+.pcard.up{background:var(--surface);color:inherit;box-shadow:0 6px 14px -6px rgba(70,60,140,.35)}
 </style>
 </head>
 <body>
@@ -693,6 +699,7 @@ function wellRow(){
   h+='<div class="trend" role="img" aria-label="'+esc(T("Your mood over the last 14 days"))+'">'+trend.map(function(x){return '<i'+(x.m?' class="k-'+MCOL[x.m]+'"':'')+' title="'+esc(nice(x.d))+'"></i>';}).join("")+'</div>';
   h+='<div class="water"><div class="waterhead"><b>'+T("Water")+'</b><span class="tag">'+esc(T("{n} of 8 glasses",{n:wt}))+'</span></div><div class="glasses">'+[1,2,3,4,5,6,7,8].map(function(n){return '<button type="button" class="glass'+(wt>=n?" on":"")+'" data-tip="'+esc(T("One tap per glass. Tap again to undo."))+'" data-act="glass" data-id="'+n+'" aria-label="'+esc(T("Glass {n}",{n:n}))+'"></button>';}).join("")+'</div></div>';
   h+='<button type="button" class="card breathe" data-act="open" data-kind="breathe"><span class="orb k-sky">'+ic("wave",26)+'</span><span class="grow"><b>'+T("Breathe for a minute")+'</b><small>'+T("Slow breathing, eyes open or closed")+'</small></span><span class="go">'+ic("right")+'</span></button>';
+  h+='<button type="button" class="card breathe" data-act="open" data-kind="calm"><span class="orb k-sky">'+ic("heart",26)+'</span><span class="grow"><b>'+T("Calm games")+'</b><small>'+T("Gentle games for an anxious moment")+'</small></span><span class="go">'+ic("right")+'</span></button>';
   return h+'</div></section>';
 }
 function moneyExtras(month,mt,by){
@@ -901,6 +908,7 @@ function puffTips(k){
 /* sheets */
 function head(t){return '<div class="top"><h2>'+t+'</h2><button type="button" class="iconbtn" aria-label="'+T("Close")+'" data-act="close">'+ic("x")+'</button></div>';}
 function openSheet(kind,id){
+  calmStop();
   var td=shift(0),h="";
   if(kind==="task")h=head(T(id?"Edit task":"New task"))+'<form data-form="task"><label>'+T("What would you like to do?")+'<input type="text" id="task-title" name="title" required maxlength="140" autocomplete="off"></label><label>'+T("Due date (optional)")+'<input type="date" id="task-due" name="due"></label><button class="btn" type="submit">'+T(id?"Save task":"Add task")+'</button></form>';
   if(kind==="habit"||kind==="habitedit")h=head(T(kind==="habit"?"New habit":"Edit habit"))+'<form data-form="habit" data-id="'+(kind==="habitedit"?id:"")+'"><input type="hidden" name="area" id="habit-area" value=""><div class="lbl">'+T("Choose a habit")+'<button type="button" class="dd" id="habit-dd" aria-expanded="false" data-act="dd"><span id="habit-dd-text">'+T("Write my own")+'</span>'+ic("down",20)+'</button><div class="ddlist" id="habit-ddlist" hidden><button type="button" class="ddo" data-act="pickhabit" data-id="">'+T("Write my own")+'</button>'+AREAS.map(function(a,ai){var g=a[1];return '<div class="ddg f-'+a[2]+'" id="ddg-'+ai+'">'+esc(T(g))+'</div>'+SUGGEST[g].map(function(x,i){return '<button type="button" class="ddo" data-act="pickhabit" data-id="'+ai+'|'+i+'">'+esc(T(x[0]))+'</button>';}).join("");}).join("")+'</div></div><label>'+T("Name")+'<input type="text" id="habit-name" name="name" required maxlength="60" autocomplete="off" placeholder="'+T("Stretch for five minutes")+'"></label><div class="lbl">'+T("Symbol")+'<div class="pick">'+HICONS.map(function(n,i){return '<label data-tip="'+esc(T(HTIP[n]))+'"><input type="radio" name="icon" id="habit-icon-'+n+'" value="'+n+'"'+(i?"":" checked")+' aria-label="'+n+'"><span class="gl k-'+HCOL[n]+'">'+ic(n)+'</span></label>';}).join("")+'</div></div><div class="lbl">'+T("Time of day")+'<div class="pick">'+PARTS.map(function(p,i){return '<label><input type="radio" name="part" id="habit-part-'+p[0]+'" value="'+p[0]+'"'+(i?"":" checked")+'><span>'+T(p[1])+'</span></label>';}).join("")+'</div></div><button class="btn" type="submit">'+T("Add habit")+'</button></form>';
@@ -925,12 +933,86 @@ function openSheet(kind,id){
     var where=T(sync==="account"?"Your planner is saved privately to your account, so it follows you between phones.":sync==="waiting"?"Your account storage has not answered yet. Changes are kept on this device for now.":"Your planner is saved on this device.");
     h=head(T("Settings"))+'<form data-form="settings"><button type="button" class="btn soft" data-act="open" data-kind="tour">'+T("Show the welcome tour")+'</button><label>'+T("Your first name (optional)")+'<input type="text" id="set-name" name="name" maxlength="30" value="'+esc(S.name)+'" autocomplete="off"></label><label>'+T("Daily reminder time (optional)")+'<input type="time" id="set-remind" name="remind" value="'+esc(S.remind||"")+'"></label><label>'+T("Currency symbol")+'<input type="text" id="set-cur" name="currency" maxlength="4" required value="'+esc(S.currency)+'" autocomplete="off"></label>'+langPick()+'<label class="small" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:flex-start"><input type="checkbox" id="set-sound" name="sound"'+(S.sound===false?"":" checked")+' style="width:22px;height:22px;accent-color:var(--accent)"> '+T("Button click sounds")+'</label><p class="small muted">'+where+' '+T("Save a backup now and then, so you can restore it on a new phone.")+'</p><div class="acts"><button class="btn soft" type="button" data-act="csv">'+T("Export money (CSV)")+'</button><button class="btn soft" type="button" data-act="csvc">'+T("Export check-ins (CSV)")+'</button><button class="btn soft" type="button" data-act="backup">'+T("Save a backup")+'</button><label class="btn soft" style="position:relative;overflow:hidden;flex-direction:row;align-items:center;justify-content:center;color:var(--ink);font-size:16px;font-weight:600">'+T("Restore a backup")+'<input type="file" id="restore-file" class="filecover" accept="application/json,.json" aria-label="'+T("Choose a backup file")+'"></label></div><div class="acts"><button class="btn warn" type="button" id="wipe" data-act="wipe">'+T("Clear everything")+'</button><button class="btn" type="submit">'+T("Save")+'</button></div></form>';
   }
+  if(kind==="calm")h=calmHtml();
+  else if(kind==="game")h=gameShell(id);
   $("sheet").innerHTML=h;$("veil").hidden=false;
+  if(kind==="game")startGame(id);
   if(id&&(kind==="task"||kind==="habitedit"||kind==="goal"))editFill(kind,id);
   var f=$("sheet").querySelector("input[type=text],input[type=number],textarea");if(f&&kind!=="settings"&&!id)f.focus();
   if(kind==="habit"&&id!=null&&id!==""){var dl=$("habit-ddlist"),dg=$("ddg-"+id);dl.hidden=false;$("habit-dd").setAttribute("aria-expanded","true");if(dg)dl.scrollTop=dg.offsetTop-dl.offsetTop;}
 }
-function closeSheet(){breathStop();$("veil").hidden=true;$("sheet").innerHTML="";}
+// Calm games: small, gentle games with no score and no timer. Nothing here is saved.
+var calm=null;
+function calmStop(){if(calm){if(calm.stop)calm.stop();calm=null;}}
+function calmHtml(){
+  var gl=[["bubbles","wave",T("Bubbles"),T("Tap the bubbles as they drift up")],["sand","leaf",T("Zen sand"),T("Draw calm lines in the sand")],["pairs","sun",T("Pastel pairs"),T("Find the matching pictures, slowly")]];
+  return head(T("Calm games"))+'<p class="muted small">'+esc(T("Take a short break. There is nothing to win and no clock."))+'</p><div class="calmlist">'+gl.map(function(g){return '<button type="button" class="card breathe" data-act="game" data-id="'+g[0]+'"><span class="orb k-sky">'+ic(g[1],26)+'</span><span class="grow"><b>'+esc(g[2])+'</b><small>'+esc(g[3])+'</small></span><span class="go">'+ic("right")+'</span></button>';}).join("")+'</div>';
+}
+function gameShell(g){
+  var names={bubbles:T("Bubbles"),sand:T("Zen sand"),pairs:T("Pastel pairs")},notes={bubbles:T("Tap the bubbles as they drift up. Breathe slowly with each pop."),sand:T("Drag a finger or the mouse to draw in the sand. Smooth it when you like."),pairs:T("Find the matching pictures. Take your time, there is no clock.")};
+  var body=g==="pairs"?'<div id="gpairs"></div>':'<canvas id="gcanvas" class="gcanvas" width="300" height="360" role="img" aria-label="'+esc(names[g]||"")+'"></canvas>';
+  var extra=g==="sand"?'<button class="btn" type="button" data-act="smooth">'+esc(T("Smooth the sand"))+'</button>':g==="pairs"?'<button class="btn" type="button" data-act="game" data-id="pairs">'+esc(T("Shuffle again"))+'</button>':'';
+  return head(esc(names[g]||T("Calm games")))+'<p class="muted small">'+esc(notes[g]||"")+'</p>'+body+'<div class="acts"><button class="btn soft" type="button" data-act="open" data-kind="calm">'+esc(T("All games"))+'</button>'+extra+'</div>';
+}
+function popSound(){
+  if(S.sound===false)return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();
+    var t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+    o.type="sine";o.frequency.setValueAtTime(520,t);o.frequency.exponentialRampToValueAtTime(980,t+0.09);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.14,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+0.13);
+  }catch(e){}
+}
+function gameBubbles(cv){
+  var ctx=cv.getContext("2d"),W=cv.width,H=cv.height,cols=["#f9b9a3","#fde0e9","#d4f1e9","#e4e1fd","#fdefc8","#dcf3da"],B=[],st={raf:0};
+  function make(y){return {x:20+Math.random()*(W-40),y:y===undefined?H+30:y,r:16+Math.random()*16,v:0.2+Math.random()*0.3,c:cols[(Math.random()*cols.length)|0],w:Math.random()*6.28};}
+  for(var i=0;i<9;i++)B.push(make(Math.random()*H));
+  function frame(){
+    var g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#f5f5fb");g.addColorStop(1,"#e4e1fd");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    B.forEach(function(b,i){b.y-=b.v;b.w+=0.015;b.x+=Math.sin(b.w)*0.25;if(b.y<-b.r-20)B[i]=make();var q=B[i];
+      ctx.globalAlpha=0.78;ctx.beginPath();ctx.arc(q.x,q.y,q.r,0,6.283);ctx.fillStyle=q.c;ctx.fill();ctx.globalAlpha=1;
+      ctx.beginPath();ctx.arc(q.x-q.r*0.35,q.y-q.r*0.35,q.r*0.22,0,6.283);ctx.fillStyle="rgba(255,255,255,.85)";ctx.fill();});
+    st.raf=requestAnimationFrame(frame);
+  }
+  cv.onpointerdown=function(e){var r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
+    for(var i=B.length-1;i>=0;i--){var b=B[i];if(Math.hypot(b.x-x,b.y-y)<b.r+6){B[i]=make();popSound();break;}}};
+  frame();
+  return {stop:function(){cancelAnimationFrame(st.raf);}};
+}
+function gameSand(cv){
+  var ctx=cv.getContext("2d"),W=cv.width,H=cv.height,down=false,lx=0,ly=0;
+  function smooth(){ctx.fillStyle="#f3ead8";ctx.fillRect(0,0,W,H);}
+  function at(e){var r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
+  smooth();
+  cv.onpointerdown=function(e){down=true;var p=at(e);lx=p[0];ly=p[1];};
+  cv.onpointermove=function(e){if(!down)return;var p=at(e);ctx.lineCap="round";
+    ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p[0],p[1]);ctx.lineWidth=3;ctx.strokeStyle="rgba(150,128,96,.22)";ctx.stroke();
+    ctx.beginPath();ctx.moveTo(lx+2,ly+2);ctx.lineTo(p[0]+2,p[1]+2);ctx.lineWidth=1.5;ctx.strokeStyle="rgba(255,255,255,.6)";ctx.stroke();
+    lx=p[0];ly=p[1];};
+  cv.onpointerup=cv.onpointercancel=cv.onpointerleave=function(){down=false;};
+  return {stop:function(){},smooth:smooth};
+}
+function gamePairs(root){
+  var sym=["🌿","🌸","🌊","☁️","🌙","⭐"],cards=sym.concat(sym).sort(function(){return Math.random()-0.5;}),open=[],gone={},busy=false,found=0;
+  root.innerHTML='<div class="pgrid">'+cards.map(function(s,i){return '<button type="button" class="pcard" data-pi="'+i+'">?</button>';}).join("")+'</div><p class="small muted" id="pmsg" aria-live="polite"></p>';
+  function paint(){root.querySelectorAll(".pcard").forEach(function(c){var i=+c.dataset.pi,show=!!gone[i]||open.indexOf(i)>-1;c.classList.toggle("up",show);c.textContent=show?cards[i]:"?";});}
+  root.onclick=function(e){var c=e.target.closest(".pcard");if(!c||busy)return;var i=+c.dataset.pi;if(gone[i]||open.indexOf(i)>-1)return;
+    open.push(i);paint();if(open.length<2)return;
+    busy=true;var a=open[0],b=open[1];
+    if(cards[a]===cards[b]){gone[a]=gone[b]=true;open=[];busy=false;found++;paint();
+      if(found===sym.length){var m=root.querySelector("#pmsg");if(m)m.textContent=T("All found. Well done, take a slow breath.");}}
+    else setTimeout(function(){open=[];busy=false;paint();},1000);
+  };
+  paint();
+  return {stop:function(){root.onclick=null;}};
+}
+function startGame(g){
+  var cv=$("gcanvas"),pr=$("gpairs");
+  if(g==="bubbles"&&cv)calm=gameBubbles(cv);
+  else if(g==="sand"&&cv)calm=gameSand(cv);
+  else if(g==="pairs"&&pr)calm=gamePairs(pr);
+}
+function closeSheet(){breathStop();calmStop();$("veil").hidden=true;$("sheet").innerHTML="";}
 function toast(msg,canUndo){
   var t=$("toast");t.innerHTML='<span>'+esc(msg)+'</span>'+(canUndo?'<button type="button" data-act="undo">'+T("Undo")+'</button>':'');t.hidden=false;
   clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.hidden=true;undoState=null;},6000);
@@ -981,6 +1063,8 @@ document.addEventListener("click",function(e){
   else if(a==="csv"){try{var rows=[["Date","Type","Category","Amount","Note"]];S.money.slice().sort(function(x,y){return x.date<y.date?-1:1;}).forEach(function(m){rows.push([m.date,m.type==="in"?"In":"Out",m.cat,m.amount,m.note||""]);});var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");var cb=new Blob(["\ufeff"+csv],{type:"text/csv"}),cu=URL.createObjectURL(cb),cl=document.createElement("a");cl.href=cu;cl.download="life-planner-money-"+shift(0)+".csv";document.body.appendChild(cl);cl.click();cl.remove();setTimeout(function(){URL.revokeObjectURL(cu);},2000);toast(T("Money exported as a spreadsheet file."));}catch(e){toast(T("The file could not be saved."));}}
   else if(a==="checkin"){var cd=shift(0),cx=null;S.checkins=S.checkins.filter(function(c){if(c.date===cd){cx=c;return false;}return true;});S.checkins.push({date:cd,mood:id,tags:(cx&&cx.tags)||[]});save();render();}
   else if(a==="ctag"){var cd2=shift(0),cc=S.checkins.filter(function(c){return c.date===cd2;})[0];if(!cc){toast(T("Pick how you feel first."));return;}cc.tags=cc.tags||[];var ti=cc.tags.indexOf(id);if(ti>-1)cc.tags.splice(ti,1);else cc.tags.push(id);save();render();}
+  else if(a==="game")openSheet("game",id);
+  else if(a==="smooth"){if(calm&&calm.smooth)calm.smooth();}
   else if(a==="glass"){var wd=shift(0),wn=+id;S.water[wd]=(S.water[wd]===wn)?wn-1:wn;save();render();}
   else if(a==="bstart"){if(breath)breathStop();else breathStart();}
   else if(a==="csvc"){try{var crow=[["Date","Mood","Tags"]];S.checkins.slice().sort(function(x,y){return x.date<y.date?-1:1;}).forEach(function(c){crow.push([c.date,c.mood,(c.tags||[]).join("; ")]);});var ccsv=crow.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");var kb=new Blob(["﻿"+ccsv],{type:"text/csv"}),ku=URL.createObjectURL(kb),kl=document.createElement("a");kl.href=ku;kl.download="life-planner-checkins-"+shift(0)+".csv";document.body.appendChild(kl);kl.click();kl.remove();setTimeout(function(){URL.revokeObjectURL(ku);},2000);toast(T("Check-ins exported as a spreadsheet file."));}catch(e){toast(T("The file could not be saved."));}}

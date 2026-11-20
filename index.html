@@ -93,6 +93,9 @@ h2{font-family:var(--display);font-weight:500;font-size:19px}
 .week.head{padding:0 14px;font-size:12px;color:var(--muted);text-align:center;letter-spacing:.04em;text-transform:uppercase}
 .week.head b{display:block;font-size:15px;color:var(--ink);font-weight:500;letter-spacing:0}
 .week.head .now b{color:var(--accent);font-weight:600}
+.week.dlabels{font-size:11px;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.04em;margin-bottom:-2px}
+.week.dlabels b{display:block;font-size:14px;color:var(--ink);font-weight:500;letter-spacing:0}
+.week.dlabels .now b{color:var(--accent);font-weight:600}
 .day{height:36px;border-radius:12px;background:var(--surface2);display:grid;place-items:center;color:transparent}
 .day[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 .day:disabled{opacity:.4;cursor:default}
@@ -655,12 +658,12 @@ function vHabits(){
   var wk=weekKeys(),td=shift(0);
   var h='<div class="hello" data-puff="habits"><h1>'+T("Habits")+'</h1><p class="muted">'+T("Small and steady. A missed day is only a day.")+'</p></div>';
   if(!S.habits.length)return h+empty(T("No habits planted yet"),T("Add one small thing you would like to return to."));
-  h+='<div class="week head">'+wk.map(function(k){var d=parse(k);return '<div'+(k===td?' class="now"':'')+'>'+d.toLocaleDateString(loc(),{weekday:"short"}).slice(0,2)+'<b class="num">'+d.getDate()+'</b></div>';}).join("")+'</div>';
+  var dl='<div class="week dlabels" aria-hidden="true">'+wk.map(function(k){var d=parse(k);return '<div'+(k===td?' class="now"':'')+'>'+d.toLocaleDateString(loc(),{weekday:"short"}).slice(0,2)+'<b class="num">'+d.getDate()+'</b></div>';}).join("")+'</div>';
   PARTS.forEach(function(p){
     var list=S.habits.filter(function(x){return (x.part||"any")===p[0];});if(!list.length)return;
     h+='<div class="part">'+T(p[1])+'</div><div class="card rows">'+list.map(function(x){
       var s=streak(x);
-      return '<div class="habit"><div class="hd"><span class="badge f-'+HCOL[x.icon]+'">'+ic(x.icon)+'</span><button type="button" class="grow tapname" style="min-width:0;flex:1" data-act="open" data-kind="habitedit" data-id="'+x.id+'"><span class="t" style="display:block">'+esc(x.name)+'</span><span class="tag">'+(s?T(s===1?"{n} day in bloom":"{n} days in bloom",{n:s}):T("Ready when you are"))+'</span></button><button type="button" class="del" aria-label="'+T("Remove habit: ")+esc(x.name)+'" data-act="rm" data-kind="habits" data-id="'+x.id+'">'+ic("x",18)+'</button></div><div class="week">'+wk.map(function(k){return '<button type="button" class="day" aria-pressed="'+!!x.log[k]+'" aria-label="'+esc(x.name)+', '+esc(nice(k))+'" data-act="habit" data-id="'+x.id+'" data-day="'+k+'"'+(k>td?" disabled":"")+'>'+ic("check",16)+'</button>';}).join("")+'</div></div>';
+      return '<div class="habit"><div class="hd"><span class="badge f-'+HCOL[x.icon]+'">'+ic(x.icon)+'</span><button type="button" class="grow tapname" style="min-width:0;flex:1" data-act="open" data-kind="habitedit" data-id="'+x.id+'"><span class="t" style="display:block">'+esc(x.name)+'</span><span class="tag">'+(s?T(s===1?"{n} day in bloom":"{n} days in bloom",{n:s}):T("Ready when you are"))+'</span></button><button type="button" class="del" aria-label="'+T("Remove habit: ")+esc(x.name)+'" data-act="rm" data-kind="habits" data-id="'+x.id+'">'+ic("x",18)+'</button></div>'+dl+'<div class="week">'+wk.map(function(k){return '<button type="button" class="day" aria-pressed="'+!!x.log[k]+'" aria-label="'+esc(x.name)+', '+esc(nice(k))+'" data-act="habit" data-id="'+x.id+'" data-day="'+k+'"'+(k>td?" disabled":"")+'>'+ic("check",16)+'</button>';}).join("")+'</div></div>';
     }).join("")+'</div>';
   });
   return h;

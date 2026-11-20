@@ -355,6 +355,8 @@ section[data-puff]>.sechead,section[data-puff]>h2{padding-right:88px}
   filter:drop-shadow(0 0 4px color-mix(in srgb,var(--glow) 85%,transparent)) drop-shadow(0 0 16px color-mix(in srgb,var(--glow) 60%,transparent))}
 .btn:active,.fab:active,.iconbtn:active{transform:scale(.96)}
 @media (prefers-reduced-motion: reduce){.btn,.fab,.iconbtn{transition:none}.btn:active,.fab:active,.iconbtn:active{transform:none}}
+/* Settings buttons: wrap two per row so long labels such as Restore a backup stay readable */
+form[data-form="settings"] .acts>*{flex:1 1 150px;min-width:0;min-height:52px;border-radius:16px;padding:8px 12px;text-align:center;line-height:1.25}
 </style>
 </head>
 <body>

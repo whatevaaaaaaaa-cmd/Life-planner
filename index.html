@@ -834,7 +834,7 @@ var FAB={tasks:["task","Add task"],habits:["habit","Add habit"],journal:["journa
 function render(){if(!Array.isArray(S.goals))S.goals=[];if(!Array.isArray(S.checkins))S.checkins=[];if(!S.water)S.water={};if(!S.budgets)S.budgets={};
   $("app").innerHTML=VIEWS[tab]();
   $("tabs").innerHTML=TABS.map(function(t){return '<button type="button" data-act="tab" data-id="'+t[0]+'"'+(t[0]===tab?' aria-current="page"':'')+'><span class="nb k-'+t[3]+'">'+ic(t[2],20)+'</span>'+T(t[1])+'</button>';}).join("");
-  var pf=$("puff");if(pf){pf.innerHTML=pal(puffMood());pf.setAttribute("aria-label",T("Puff, your little cloud friend. Tap to say hello"));}
+  var pf=$("puff");if(pf){pf.innerHTML=companion(puffMood());pf.setAttribute("aria-label",S.companion==="sunny"?T("Sunny, your cactus friend. Tap to say hello"):T("Puff, your little cloud friend. Tap to say hello"));}
   hideSay();queuePuff();
   var f=FAB[tab],b=$("fab");b.hidden=!f;if(f){b.innerHTML=ic("plus")+T(f[1]);b.dataset.act="open";b.dataset.kind=f[0];}
 }
@@ -847,6 +847,28 @@ function pal(m){
   var mouth=m==="joy"?'<path d="M54 71q6 8 12 0z" fill="var(--petal-ink)"/>':'<path d="M55 71q5 4 10 0" '+ink+'/>';
   return '<svg viewBox="0 0 120 112" aria-hidden="true"><path d="M60 30V16" stroke="var(--sage-ink)" stroke-width="2.500" stroke-linecap="round" fill="none"/><ellipse cx="52" cy="14" rx="9" ry="5" transform="rotate(-25 52 14)" fill="var(--sage)" stroke="var(--sage-ink)" stroke-width="1.500"/><ellipse cx="68" cy="12" rx="9" ry="5" transform="rotate(25 68 12)" fill="var(--sage)" stroke="var(--sage-ink)" stroke-width="1.500"/><defs><radialGradient id="palshade" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset=".65" stop-color="#f3f2fd"/><stop offset="1" stop-color="#d9d6f3"/></radialGradient></defs><g fill="url(#palshade)"><circle cx="36" cy="66" r="22"/><circle cx="60" cy="54" r="28"/><circle cx="84" cy="66" r="22"/><ellipse cx="60" cy="76" rx="44" ry="20"/></g><circle cx="42" cy="72" r="5" fill="var(--petal)"/><circle cx="78" cy="72" r="5" fill="var(--petal)"/>'+eyes+mouth+(m==="sleep"?'<text x="94" y="36" class="zz">z</text>':'')+'</svg>';
 }
+/* Sunny, a cactus friend, in the same soft style as Puff. Moods: calm (sun hat and sunglasses), joy (party hat),
+   sleep (nightcap), comfort (scarf and beanie on a low-mood day). */
+function cactus(m){
+  var L='#4e9a52',G='#b4e3a0',K='var(--ink)';
+  var arm=function(d){return '<path d="'+d+'" fill="none" stroke="'+L+'" stroke-width="12" stroke-linecap="round"/><path d="'+d+'" fill="none" stroke="'+G+'" stroke-width="8" stroke-linecap="round"/>';};
+  var arms=m==="joy"?arm("M47 68Q34 62 32 48")+arm("M73 68Q86 62 88 48"):m==="calm"?arm("M47 72Q36 74 36 84")+arm("M73 66Q88 62 84 78"):arm("M47 74Q38 80 40 90")+arm("M73 74Q82 80 80 90");
+  var shadow='<ellipse cx="60" cy="106" rx="26" ry="4.5" fill="rgba(110,150,160,.22)"/>';
+  var body='<rect x="46" y="28" width="28" height="72" rx="14" fill="'+G+'" stroke="'+L+'" stroke-width="2.5"/><path d="M52 42v5M68 54v5M52 80v5M68 88v5" stroke="'+L+'" stroke-width="2" stroke-linecap="round"/>';
+  var outfit=m==="calm"?'<path d="M46 70Q60 74 74 70V90Q60 94 46 90z" fill="#fde0e9" stroke="#a3315a" stroke-width="1.5"/><g fill="#fff"><circle cx="52" cy="79" r="2.5"/><circle cx="66" cy="77" r="2.5"/><circle cx="58" cy="86" r="2.5"/><circle cx="70" cy="88" r="2.5"/></g>'
+    :m==="comfort"?'<path d="M42 78Q60 88 78 78L78 86Q60 96 42 86z" fill="#f9b9a3" stroke="#96492f" stroke-width="1.5"/><path d="M68 84L72 102L80 98L76 82z" fill="#f9b9a3" stroke="#96492f" stroke-width="1.5" stroke-linejoin="round"/>':'';
+  var line=function(d){return '<path d="'+d+'" fill="none" stroke="'+K+'" stroke-width="2.5" stroke-linecap="round"/>';};
+  var face=m==="calm"?'<rect x="46" y="45" width="15" height="11" rx="5" fill="#f887a8" stroke="#a3315a" stroke-width="2"/><rect x="59" y="45" width="15" height="11" rx="5" fill="#f887a8" stroke="#a3315a" stroke-width="2"/><rect x="48" y="47" width="11" height="7" rx="3" fill="#4a4160"/><rect x="61" y="47" width="11" height="7" rx="3" fill="#4a4160"/><path d="M54 64q6 7 12 0z" fill="#a3315a"/>'
+    :m==="joy"?line("M50 53q4-5 8 0M62 53q4-5 8 0")+'<path d="M53 62q7 9 14 0z" fill="#a3315a"/>'
+    :m==="sleep"?line("M50 54q4 4 8 0M62 54q4 4 8 0")+line("M57 64q3 2 6 0")
+    :'<circle cx="54" cy="53" r="2.5" fill="'+K+'"/><circle cx="66" cy="53" r="2.5" fill="'+K+'"/><circle cx="48" cy="60" r="3" fill="#f887a8" opacity=".5"/><circle cx="72" cy="60" r="3" fill="#f887a8" opacity=".5"/>'+line("M56 63q4 3 8 0");
+  var hat=m==="calm"?'<ellipse cx="60" cy="28" rx="34" ry="6.5" fill="#e9c98a" stroke="#a9843f" stroke-width="2"/><path d="M40 27q1-18 20-18t20 18z" fill="#e9c98a" stroke="#a9843f" stroke-width="2"/><path d="M41 22q19 6 38 0" fill="none" stroke="#f887a8" stroke-width="4"/>'
+    :m==="joy"?'<path d="M60 2L47 30h26z" fill="#c9b8f7" stroke="#6b5cf0" stroke-width="2" stroke-linejoin="round"/><circle cx="54" cy="18" r="2.5" fill="#fde0e9"/><circle cx="64" cy="22" r="2.5" fill="#fbbf3a"/><circle cx="60" cy="4" r="4" fill="#fde0e9" stroke="#f887a8" stroke-width="1.5"/>'
+    :m==="sleep"?'<path d="M44 34Q50 6 76 12Q66 20 68 34z" fill="#bfe3f5" stroke="#4f86a8" stroke-width="2" stroke-linejoin="round"/><circle cx="76" cy="12" r="4" fill="#fff" stroke="#4f86a8" stroke-width="1.5"/><rect x="42" y="30" width="36" height="7" rx="3.5" fill="#fde0e9" stroke="#a3315a" stroke-width="1.5"/><circle cx="104" cy="20" r="7" fill="#fdefc8" stroke="#c99a3a" stroke-width="1.5"/>'
+    :'<path d="M42 40Q42 14 60 14Q78 14 78 40z" fill="#fde0e9" stroke="#a3315a" stroke-width="2"/><rect x="40" y="36" width="40" height="7" rx="3.5" fill="#f9b9a3" stroke="#96492f" stroke-width="1.5"/>';
+  return '<svg viewBox="0 0 120 112" aria-hidden="true">'+shadow+arms+body+outfit+face+hat+'</svg>';
+}
+function companion(m){return S.companion==="sunny"?cactus(m):pal(m);}
 function palLines(){
   var td=shift(0),ht=S.habits.length,hd=S.habits.filter(function(h){return h.log[td];}).length,a=[];
   if(!S.wheel||!S.wheel.scores||!S.wheel.scores[AREAS[0][0]])a.push(T("Shall we start with your balance wheel?"));
@@ -859,7 +881,7 @@ function palLines(){
 }
 function tourHtml(){
   var t=TOUR[tourStep],last=tourStep===TOUR.length-1,art;
-  if(t[0]==="pal"||t[0]==="paljoy")art='<span class="pal">'+pal(t[0]==="paljoy"?"joy":"calm")+'</span>';
+  if(t[0]==="pal"||t[0]==="paljoy")art='<span class="pal">'+companion(t[0]==="paljoy"?"joy":"calm")+'</span>';
   else{var q=t[0].split("|");art='<span class="k-'+q[0]+'"><span class="orb">'+ic(q[1],54)+'</span></span>';}
   return '<div class="tour">'+(last?'<span style="min-height:40px"></span>':'<button type="button" class="skip" data-act="tdone">'+T("Skip")+'</button>')+'<div class="art" aria-hidden="true">'+art+'</div><h2>'+T(t[1])+'</h2><p>'+T(t[2])+'</p>'+(tourStep===0?'<div class="tlang">'+LANGS.map(function(l){return '<button type="button" data-act="setlang" data-id="'+l[0]+'" aria-current="'+(LANG===l[0])+'" lang="'+l[0]+'">'+l[1]+'</button>';}).join("")+'</div>':'')+'<div class="dots" aria-label="'+T("Step {a} of {b}",{a:tourStep+1,b:TOUR.length})+'">'+TOUR.map(function(x,i){return '<i class="'+(i===tourStep?"on":"")+'"></i>';}).join("")+'</div><div class="acts">'+
    (last?'<button type="button" class="btn soft" data-act="tdone">'+T("Look around first")+'</button><button type="button" class="btn" data-act="tstart">'+T("Start my wheel")+'</button>'
@@ -867,7 +889,7 @@ function tourHtml(){
 }
 /* Puff floats down the page and rests beside each section */
 var puffKey="hello",puffTimer=null,puffRaf=0,puffTurn={};
-function puffMood(){var td=shift(0),ht=S.habits.length,hd=S.habits.filter(function(h){return h.log[td];}).length,hr=new Date().getHours();return ht&&hd===ht?"joy":(hr>=21||hr<5)?"sleep":"calm";}
+function puffMood(){var td=shift(0),ci0=S.checkins.filter(function(c){return c.date===td;})[0];if(ci0&&(ci0.mood==="cloud"||ci0.mood==="rain"||ci0.mood==="storm"))return "comfort";var ht=S.habits.length,hd=S.habits.filter(function(h){return h.log[td];}).length,hr=new Date().getHours();return ht&&hd===ht?"joy":(hr>=21||hr<5)?"sleep":"calm";}
 function hideSay(){var x=$("puffsay");if(x)x.hidden=true;clearTimeout(puffTimer);}
 function puffSay(msg){var x=$("puffsay");x.textContent=msg;x.style.top=((parseFloat($("puff").style.top)||12)+10)+"px";x.hidden=false;clearTimeout(puffTimer);puffTimer=setTimeout(hideSay,8000);}
 function placePuff(){
@@ -931,7 +953,7 @@ function openSheet(kind,id){
   if(kind==="settings"){
     armed=false;
     var where=T(sync==="account"?"Your planner is saved privately to your account, so it follows you between phones.":sync==="waiting"?"Your account storage has not answered yet. Changes are kept on this device for now.":"Your planner is saved on this device.");
-    h=head(T("Settings"))+'<form data-form="settings"><button type="button" class="btn soft" data-act="open" data-kind="tour">'+T("Show the welcome tour")+'</button><label>'+T("Your first name (optional)")+'<input type="text" id="set-name" name="name" maxlength="30" value="'+esc(S.name)+'" autocomplete="off"></label><label>'+T("Daily reminder time (optional)")+'<input type="time" id="set-remind" name="remind" value="'+esc(S.remind||"")+'"></label><label>'+T("Currency symbol")+'<input type="text" id="set-cur" name="currency" maxlength="4" required value="'+esc(S.currency)+'" autocomplete="off"></label>'+langPick()+'<label class="small" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:flex-start"><input type="checkbox" id="set-sound" name="sound"'+(S.sound===false?"":" checked")+' style="width:22px;height:22px;accent-color:var(--accent)"> '+T("Button click sounds")+'</label><p class="small muted">'+where+' '+T("Save a backup now and then, so you can restore it on a new phone.")+'</p><div class="acts"><button class="btn soft" type="button" data-act="csv">'+T("Export money (CSV)")+'</button><button class="btn soft" type="button" data-act="csvc">'+T("Export check-ins (CSV)")+'</button><button class="btn soft" type="button" data-act="backup">'+T("Save a backup")+'</button><label class="btn soft" style="position:relative;overflow:hidden;flex-direction:row;align-items:center;justify-content:center;color:var(--ink);font-size:16px;font-weight:600">'+T("Restore a backup")+'<input type="file" id="restore-file" class="filecover" accept="application/json,.json" aria-label="'+T("Choose a backup file")+'"></label></div><div class="acts"><button class="btn warn" type="button" id="wipe" data-act="wipe">'+T("Clear everything")+'</button><button class="btn" type="submit">'+T("Save")+'</button></div></form>';
+    h=head(T("Settings"))+'<form data-form="settings"><button type="button" class="btn soft" data-act="open" data-kind="tour">'+T("Show the welcome tour")+'</button><label>'+T("Your first name (optional)")+'<input type="text" id="set-name" name="name" maxlength="30" value="'+esc(S.name)+'" autocomplete="off"></label><label>'+T("Daily reminder time (optional)")+'<input type="time" id="set-remind" name="remind" value="'+esc(S.remind||"")+'"></label><label>'+T("Currency symbol")+'<input type="text" id="set-cur" name="currency" maxlength="4" required value="'+esc(S.currency)+'" autocomplete="off"></label>'+langPick()+'<label class="small" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:flex-start"><input type="checkbox" id="set-sound" name="sound"'+(S.sound===false?"":" checked")+' style="width:22px;height:22px;accent-color:var(--accent)"> '+T("Button click sounds")+'</label><div class="lbl" style="margin-top:6px">'+T("Your companion")+'</div><div class="pick"><label><input type="radio" name="companion" value="puff"'+(S.companion!=="sunny"?" checked":"")+'><span>'+T("Puff, the cloud")+'</span></label><label><input type="radio" name="companion" value="sunny"'+(S.companion==="sunny"?" checked":"")+'><span>'+T("Sunny, the cactus")+'</span></label></div><p class="small muted">'+where+' '+T("Save a backup now and then, so you can restore it on a new phone.")+'</p><div class="acts"><button class="btn soft" type="button" data-act="csv">'+T("Export money (CSV)")+'</button><button class="btn soft" type="button" data-act="csvc">'+T("Export check-ins (CSV)")+'</button><button class="btn soft" type="button" data-act="backup">'+T("Save a backup")+'</button><label class="btn soft" style="position:relative;overflow:hidden;flex-direction:row;align-items:center;justify-content:center;color:var(--ink);font-size:16px;font-weight:600">'+T("Restore a backup")+'<input type="file" id="restore-file" class="filecover" accept="application/json,.json" aria-label="'+T("Choose a backup file")+'"></label></div><div class="acts"><button class="btn warn" type="button" id="wipe" data-act="wipe">'+T("Clear everything")+'</button><button class="btn" type="submit">'+T("Save")+'</button></div></form>';
   }
   if(kind==="calm")h=calmHtml();
   else if(kind==="game")h=gameShell(id);
@@ -1109,7 +1131,7 @@ document.addEventListener("submit",function(e){
   else if(k==="step"){var sg2=find("goals",f.dataset.goal);if(!sg2||!v("text"))return;sg2.steps.push({id:uid(),text:v("text"),horizon:v("h")||"day",done:false,period:""});toast(T("Step added."));}
   else if(k==="stepedit"){var se=find("goals",f.dataset.goal),ste=se?se.steps.filter(function(x){return x.id===f.dataset.id;})[0]:null;if(!ste||!v("text"))return;var nh=v("h")||ste.horizon;if(nh!==ste.horizon){ste.done=false;ste.period="";}ste.text=v("text");ste.horizon=nh;toast(T("Step saved."));}
   else if(k==="budgets"){CATS.out.forEach(function(c){var x=parseFloat(f.elements["b_"+c].value);if(x>0)S.budgets[c]=x;else delete S.budgets[c];});toast(T("Budgets saved."));}
-  else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";S.sound=!!f.elements.sound.checked;S.remind=v("remind");
+  else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";S.sound=!!f.elements.sound.checked;S.companion=f.elements.companion.value;S.remind=v("remind");
   if(!S.remind)pushUnsubscribe();
   else if("Notification" in window&&Notification.permission==="default")Notification.requestPermission().then(function(p){if(p==="granted")pushSubscribe(S.remind);remindCheck();});
   else if("Notification" in window&&Notification.permission==="granted")pushSubscribe(S.remind);var nl=v("lang");if(nl&&nl!==LANG)setLang(nl);toast(T("Saved."));}

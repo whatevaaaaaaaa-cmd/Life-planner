@@ -1150,7 +1150,7 @@ document.addEventListener("submit",function(e){
   else if(k==="step"){var sg2=find("goals",f.dataset.goal);if(!sg2||!v("text"))return;sg2.steps.push({id:uid(),text:v("text"),horizon:v("h")||"day",done:false,period:""});toast(T("Step added."));}
   else if(k==="stepedit"){var se=find("goals",f.dataset.goal),ste=se?se.steps.filter(function(x){return x.id===f.dataset.id;})[0]:null;if(!ste||!v("text"))return;var nh=v("h")||ste.horizon;if(nh!==ste.horizon){ste.done=false;ste.period="";}ste.text=v("text");ste.horizon=nh;toast(T("Step saved."));}
   else if(k==="budgets"){CATS.out.forEach(function(c){var x=parseFloat(f.elements["b_"+c].value);if(x>0)S.budgets[c]=x;else delete S.budgets[c];});toast(T("Budgets saved."));}
-  else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";S.sound=!!f.elements.sound.checked;S.companion=f.elements.companion.value;S.remind=v("remind");
+  else if(k==="settings"){S.name=v("name");S.currency=v("currency")||"R";S.sound=!!f.elements.sound.checked;S.companion=f.elements.companion.value;setTimeout(function(){if(S.companion==="sunny")puffSay(T("Hello, I am Sunny. I am right here beside the date."));},700);S.remind=v("remind");
   if(!S.remind)pushUnsubscribe();
   else if("Notification" in window&&Notification.permission==="default")Notification.requestPermission().then(function(p){if(p==="granted")pushSubscribe(S.remind);remindCheck();});
   else if("Notification" in window&&Notification.permission==="granted")pushSubscribe(S.remind);var nl=v("lang");if(nl&&nl!==LANG)setLang(nl);toast(T("Saved."));}

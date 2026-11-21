@@ -539,9 +539,9 @@ function scene(){
   if(h>=5&&h<8)c=["#f8d9dc","#fdeeee","#c5dcc6","#a9cbb2","#8fb99c","#fde4e1"];
   else if(h>=8&&h<17)c=["#cde5f3","#eef6ee","#badac4","#9fc8ad","#85b497","#fff1ea"];
   else if(h>=17&&h<19.500)c=["#cfdcf0","#f8d4d6","#b6c9c0","#96b3a8","#7b9c92","#fbd0cc"];
-  else c=["#22304a","#3b5273","#2f4a4b","#264041","#1e3436","#eaf1f4"];
+  else c=["#8e9ccc","#d9d3ef","#a7bfcb","#8aa8b5","#7a97a3","#fff7e8"];
   var day=h>=5&&h<19.500,body;
-  function cloud(x,y,k){return '<g fill="'+(day?"#ffffff":"#8fa3c4")+'" opacity="'+(day?0.850:0.250)+'"><circle cx="'+x+'" cy="'+y+'" r="'+11*k+'"/><circle cx="'+(x+13*k)+'" cy="'+(y-7*k)+'" r="'+14*k+'"/><circle cx="'+(x+28*k)+'" cy="'+y+'" r="'+11*k+'"/><ellipse cx="'+(x+14*k)+'" cy="'+(y+5*k)+'" rx="'+24*k+'" ry="'+8*k+'"/></g>';}
+  function cloud(x,y,k){return '<g fill="#ffffff" opacity="'+(day?0.850:0.400)+'"><circle cx="'+x+'" cy="'+y+'" r="'+11*k+'"/><circle cx="'+(x+13*k)+'" cy="'+(y-7*k)+'" r="'+14*k+'"/><circle cx="'+(x+28*k)+'" cy="'+y+'" r="'+11*k+'"/><ellipse cx="'+(x+14*k)+'" cy="'+(y+5*k)+'" rx="'+24*k+'" ry="'+8*k+'"/></g>';}
   if(day){var t=(h-5)/14.500,x=40+t*320,y=104-Math.sin(t*Math.PI)*78;body='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="15" fill="'+c[5]+'"/>';}
   else body='<circle cx="304" cy="38" r="14" fill="'+c[5]+'"/><circle cx="298" cy="34" r="12.500" fill="'+c[0]+'"/><circle cx="70" cy="30" r="1.400" fill="'+c[5]+'"/><circle cx="150" cy="52" r="1.100" fill="'+c[5]+'"/><circle cx="215" cy="24" r="1.300" fill="'+c[5]+'"/><circle cx="355" cy="70" r="1.100" fill="'+c[5]+'"/>';
   return '<svg class="scene" viewBox="0 0 400 150" role="img" aria-label="'+T("A quiet landscape at this time of day")+'"><defs><linearGradient id="skyfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient></defs><rect width="400" height="150" fill="url(#skyfill)"/>'+body+
